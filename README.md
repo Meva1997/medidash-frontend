@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MediDash — Frontend
+
+Clinical dashboard for medical staff (doctors and nurses), built with Next.js 16 App Router, React 19, TanStack Query v5, Axios, and Tailwind CSS v4.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The root path redirects automatically to `/login`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev      # development server on localhost:3000
+npm run build    # production build
+npm run lint     # ESLint
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+  (auth)/login        # unauthenticated login page
+  (dashboard)/        # protected shell (Sidebar + TopBar layout)
+    patients/         # patient list and detail (/patients/[id])
+    drugs/            # drug interaction checker
+    checklists/[id]/  # per-patient checklists
+components/
+  ui/                 # Button, Card, Input, Badge primitives
+  layout/             # Sidebar, TopBar
+  patients/           # patient-specific components
+  drugs/              # drug-specific components
+  checklists/         # checklist-specific components
+context/
+  AuthContext.tsx     # client-side auth state + login/logout helpers
+  QueryProvider.tsx   # global TanStack Query client (staleTime: 2 min, retry: 1)
+hooks/                # usePatients, useDrugs, useChecklists, useAuth
+lib/
+  api.ts              # pre-configured Axios instance (reads access_token cookie, redirects on 401)
+middleware.ts         # guards non-static routes; redirects unauthenticated → /login
+types/index.ts        # shared types: User, Patient, Drug, InteractionResult, Checklist, ChecklistItem
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Auth & Routing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Authentication is managed client-side. The `access_token` cookie is the source of truth for both `middleware.ts` and the Axios interceptor in `lib/api.ts`. User data is persisted in `localStorage` via `AuthContext`.
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable              | Description                        | Default                    |
+|-----------------------|------------------------------------|----------------------------|
+| `NEXT_PUBLIC_API_URL` | Backend base URL                   | `http://localhost:8000`    |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Create a `.env.local` file at the project root to override defaults:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## UI
+
+The app is dark-mode only. The `<html>` element carries `class="dark"` and the body uses `bg-gray-950`. Primary font is **DM Sans**; monospace font is **Geist Mono**.
