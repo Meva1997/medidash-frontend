@@ -170,7 +170,7 @@ medidash-frontend/
 ## Author
 
 **Alex** — Junior Full Stack Developer  
-[GitHub](https://github.com/your-username) · [LinkedIn](https://linkedin.com/in/your-profile)
+[GitHub](https://github.com/Meva1997) · [LinkedIn](https://www.linkedin.com/in/alex-fullstack-developer/)
 
 ---
 
