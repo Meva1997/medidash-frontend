@@ -3,10 +3,11 @@
 > Clinical dashboard for doctors and nurses — manage patients, check drug interactions, and track surgical checklists in one place.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=flat&logo=next.js&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React_19-61DAFB?style=flat&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS_v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 
 **Live Demo:** [medidash.vercel.app](https://medidash.vercel.app) · **API Docs:** [medidash-api.onrender.com/docs](https://medidash-api.onrender.com/docs)
 
@@ -24,15 +25,15 @@ The project was designed to reflect real clinical workflows — not a generic CR
 
 ### Authentication & Roles
 - JWT-based auth with `doctor` and `nurse` roles
-- Nurses are restricted to vitals-only updates (weight, height, Glasgow score)
-- Doctors have full patient management access
-- Protected routes enforced at both middleware and API level
+- Cookie-based token storage via `js-cookie`; user object persisted in `localStorage`
+- Route guarding via `proxy.ts`: unauthenticated users redirected to `/login`, authenticated users away from it
+- Doctors have full patient management and checklist creation; nurses can toggle checklist items only
 
 ### Patient Management
-- Full patient CRUD with clinical range validation (age, weight, height, GCS)
-- Real-time BMI calculation and categorization
-- Glasgow Coma Scale interpretation on every patient profile
-- Name sanitization supporting Spanish characters
+- Patient list with live search, role-gated "Admit patient" button, and delete with confirmation dialog
+- Admit form built with **React Hook Form + Zod** (`lib/schemas/patient.schema.ts`): validates `full_name`, `age`, `gender`, `weight_kg`, `height_cm`, `glasgow_score`
+- `PatientProfile` component: server-computed BMI (with color-coded category) and Glasgow Coma Scale interpretation inline on the detail page
+- Surgical checklists embedded directly on patient detail — doctors create, nurses check off items
 
 ### Drug Interaction Checker
 - Search across the full drug catalog
@@ -43,7 +44,7 @@ The project was designed to reflect real clinical workflows — not a generic CR
 ### Surgical Checklists
 - Doctor-initiated checklists pre-populated with 10 WHO surgical safety steps
 - Item-level completion tracking with timestamps
-- Per-patient checklist history
+- Per-patient checklist history, also accessible at `/checklists/[id]`
 
 ---
 
@@ -52,10 +53,13 @@ The project was designed to reflect real clinical workflows — not a generic CR
 ### Frontend
 | | |
 |---|---|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| Styling | TailwindCSS |
-| Data Fetching | TanStack Query |
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5 |
+| UI | React 19 |
+| Styling | TailwindCSS v4 |
+| Data Fetching | TanStack Query v5 |
+| Forms | React Hook Form v7 + Zod v4 |
+| HTTP | Axios |
 | Auth State | React Context + js-cookie |
 
 ### Backend
@@ -108,7 +112,7 @@ Full interactive docs available at the API URL above.
 ### Frontend
 
 ```bash
-git clone https://github.com/your-username/medidash-frontend
+git clone https://github.com/Meva1997/medidash-frontend
 cd medidash-frontend
 npm install
 cp .env.example .env.local
@@ -123,7 +127,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ### Backend
 
 ```bash
-git clone https://github.com/your-username/medidash-backend
+git clone https://github.com/Meva1997/medidash-backend
 cd medidash-backend
 python -m venv venv
 source venv/bin/activate
@@ -148,21 +152,26 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 medidash-frontend/
 ├── app/
-│   ├── (auth)/login/          # Login page
-│   └── (dashboard)/           # Protected layout with sidebar
-│       ├── patients/          # Patient census + individual profiles
+│   ├── (auth)/login/          # Login page (JWT form)
+│   └── (dashboard)/           # Protected layout (Sidebar only)
+│       ├── patients/          # Patient census + admit modal
+│       ├── patients/[id]/     # Patient detail: stats + inline checklists
 │       ├── drugs/             # Drug interaction checker
-│       └── checklists/[id]/   # Surgical checklist view
+│       └── checklists/[id]/   # Standalone checklist view
 ├── components/
-│   ├── ui/                    # Base components (Button, Badge, Card, Input)
-│   ├── layout/                # Sidebar, TopBar
-│   ├── patients/              # PatientTable, PatientForm
+│   ├── ui/                    # Button, Badge, Card, Input, ConfirmDialog
+│   ├── layout/                # Sidebar (role-aware nav + logout)
+│   ├── patients/              # PatientTable, PatientForm, PatientProfile
 │   ├── drugs/                 # InteractionChecker
 │   └── checklists/            # ChecklistPanel
-├── hooks/                     # TanStack Query hooks per domain
-├── lib/                       # Axios client, utilities
+├── hooks/                     # TanStack Query hooks (usePatients, useChecklists, useDrugs)
+├── lib/
+│   ├── api.ts                 # Axios instance (auto-redirect on 401)
+│   ├── schemas/               # Zod schemas (patient.schema.ts)
+│   └── utils.ts               # cn, getBMIColor, getGlasgowColor
 ├── context/                   # AuthContext, QueryProvider
-└── types/                     # Shared TypeScript interfaces
+├── proxy.ts                   # Route guard (replaces middleware.ts)
+└── types/                     # Shared TypeScript interfaces (index.ts)
 ```
 
 ---

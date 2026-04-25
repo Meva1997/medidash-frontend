@@ -19,6 +19,7 @@ export interface Patient {
   weight_kg: number;
   height_cm: number;
   glasgow_score: number;
+  created_at: string; // agrega esto
   bmi: number;
   bmi_category: string;
   glasgow_interpretation: string;
@@ -38,14 +39,17 @@ export interface InteractionResult {
 
 export interface ChecklistItem {
   id: number;
-  description: string;
-  is_completed: boolean;
+  step: string;
+  completed: boolean;
   completed_at: string | null;
+  completed_by: string;
 }
 
 export interface Checklist {
   id: number;
   patient_id: number;
   created_at: string;
+  created_by: number;
+  notes: string | null;
   items: ChecklistItem[];
 }

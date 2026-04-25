@@ -15,12 +15,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null; // Ensure this runs only on the client
-    return Cookies.get("access_token") ?? null;
-  });
+  const [token, setToken] = useState<string | null>(() => Cookies.get("access_token") ?? null);
   const [user, setUser] = useState<User | null>(() => {
-    if (typeof window === "undefined") return null; // Ensure this runs only on the client
+    if (typeof window === "undefined") return null;
     const savedUser = localStorage.getItem("user");
     return savedUser ? (JSON.parse(savedUser) as User) : null;
   });
