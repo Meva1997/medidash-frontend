@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import Cookies from "js-cookie";
 import { User } from "@/types";
 
@@ -16,11 +16,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => Cookies.get("access_token") ?? null);
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    return savedUser ? (JSON.parse(savedUser) as User) : null;
-  });
+    if (savedUser) setUser(JSON.parse(savedUser) as User);
+  }, []);
 
   const login = (token: string, user: User) => {
     Cookies.set("access_token", token, { expires: 1 }); // Expires in 1 day

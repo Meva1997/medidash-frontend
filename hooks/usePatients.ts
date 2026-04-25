@@ -24,6 +24,34 @@ export function usePatient(id: number) {
   });
 }
 
+// Hook to update a patient
+export function useUpdatePatient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: {
+        full_name?: string;
+        age?: number;
+        gender?: string;
+        weight_kg?: number;
+        height_cm?: number;
+        glasgow_score?: number;
+      };
+    }) => {
+      const { data: res } = await api.put(`/patients/${id}`, data);
+      return res;
+    },
+    onSuccess: (_res, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["patients", id] });
+    },
+  });
+}
+
 // Hook to delete a patient
 export function useDeletePatient() {
   const queryClient = useQueryClient();

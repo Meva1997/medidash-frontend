@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Patient, Checklist } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +9,7 @@ import {
   useToggleChecklistItem,
 } from "@/hooks/useChecklists";
 import { getBMIColor, getGlasgowColor } from "@/lib/utils";
+import PatientForm from "@/components/patients/PatientForm";
 
 interface PatientProfileProps {
   patient: Patient;
@@ -18,8 +20,10 @@ export default function PatientProfile({
   patient,
   checklists,
 }: PatientProfileProps) {
+  console.log("🚀 ~ PatientProfile ~ patient:", patient.gender);
   const router = useRouter();
   const { user } = useAuth();
+  const [showEditForm, setShowEditForm] = useState(false);
   const { mutate: createChecklist, isPending: isCreatingChecklist } =
     useCreateChecklist();
   const {
@@ -62,11 +66,7 @@ export default function PatientProfile({
             </h1>
             <p className="text-sm text-gray-600 mt-0.5">
               {patient.age} yrs ·{" "}
-              {patient.gender === "M"
-                ? "Male"
-                : patient.gender === "F"
-                  ? "Female"
-                  : "Other"}
+              {patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)}
               · Admitted{" "}
               {new Date(patient.created_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -78,20 +78,31 @@ export default function PatientProfile({
         </div>
 
         {user?.role === "doctor" && (
-          <button
-            onClick={() => createChecklist(patient.id)}
-            disabled={isCreatingChecklist}
-            className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
-          >
-            <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1"
-                clipRule="evenodd"
-              />
-            </svg>
-            {isCreatingChecklist ? "Creating..." : "New checklist"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowEditForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-medium rounded-lg border border-gray-700 transition-colors"
+            >
+              <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
+                <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Edit patient
+            </button>
+            <button
+              onClick={() => createChecklist(patient.id)}
+              disabled={isCreatingChecklist}
+              className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {isCreatingChecklist ? "Creating..." : "New checklist"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -292,6 +303,39 @@ export default function PatientProfile({
           </div>
         )}
       </div>
+
+      {/* Edit patient modal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+              <h2 className="text-base font-medium text-gray-100">
+                Edit patient
+              </h2>
+              <button
+                onClick={() => setShowEditForm(false)}
+                className="text-gray-600 hover:text-gray-300 transition-colors"
+              >
+                <svg
+                  fill="currentColor"
+                  className="w-5 h-5"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+            <PatientForm
+              patient={patient}
+              onSuccess={() => setShowEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

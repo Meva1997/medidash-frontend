@@ -31,7 +31,8 @@ The project was designed to reflect real clinical workflows — not a generic CR
 
 ### Patient Management
 - Patient list with live search, role-gated "Admit patient" button, and delete with confirmation dialog
-- Admit form built with **React Hook Form + Zod** (`lib/schemas/patient.schema.ts`): validates `full_name`, `age`, `gender`, `weight_kg`, `height_cm`, `glasgow_score`
+- Admit/edit form built with **React Hook Form + Zod** (`lib/schemas/patient.schema.ts`): validates `full_name`, `age`, `gender` (`male`/`female`/`other`), `weight_kg`, `height_cm`, `glasgow_score`
+- Doctors can edit existing patient records via an "Edit patient" modal on the patient detail page (`PUT /patients/{id}`)
 - `PatientProfile` component: server-computed BMI (with color-coded category) and Glasgow Coma Scale interpretation inline on the detail page
 - Surgical checklists embedded directly on patient detail — doctors create, nurses check off items
 
@@ -60,7 +61,7 @@ The project was designed to reflect real clinical workflows — not a generic CR
 | Data Fetching | TanStack Query v5 |
 | Forms | React Hook Form v7 + Zod v4 |
 | HTTP | Axios |
-| Auth State | React Context + js-cookie |
+| Auth State | React Context + js-cookie (SSR-safe via `useEffect`) |
 
 ### Backend
 | | |
@@ -164,7 +165,7 @@ medidash-frontend/
 │   ├── patients/              # PatientTable, PatientForm, PatientProfile
 │   ├── drugs/                 # InteractionChecker
 │   └── checklists/            # ChecklistPanel
-├── hooks/                     # TanStack Query hooks (usePatients, useChecklists, useDrugs)
+├── hooks/                     # TanStack Query hooks (usePatients + useUpdatePatient, useChecklists, useDrugs)
 ├── lib/
 │   ├── api.ts                 # Axios instance (auto-redirect on 401)
 │   ├── schemas/               # Zod schemas (patient.schema.ts)

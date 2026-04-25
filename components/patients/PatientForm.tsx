@@ -6,9 +6,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import api from "@/lib/api";
 import { patientSchema, PatientFormData } from "@/lib/schemas/patient.schema";
+import { useUpdatePatient } from "@/hooks/usePatients";
+import { Patient } from "@/types";
 
 interface PatientFormProps {
   onSuccess: () => void;
+  patient?: Patient;
 }
 
 interface FieldProps {
@@ -34,8 +37,9 @@ function Field({ label, error, children }: FieldProps) {
 const inputClass =
   "w-full h-10 px-3 rounded-lg border border-gray-700 bg-gray-800 text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-600";
 
-export default function PatientForm({ onSuccess }: PatientFormProps) {
+export default function PatientForm({ onSuccess, patient }: PatientFormProps) {
   const queryClient = useQueryClient();
+  const isEdit = !!patient;
 
   const {
     register,
@@ -43,15 +47,22 @@ export default function PatientForm({ onSuccess }: PatientFormProps) {
     formState: { errors },
   } = useForm<PatientFormInput, unknown, PatientFormData>({
     resolver: zodResolver(patientSchema),
-    defaultValues: {
-      glasgow_score: 15,
-    },
+    defaultValues: isEdit
+      ? {
+          full_name: patient.full_name,
+          age: String(patient.age) as unknown as number,
+          gender: patient.gender,
+          weight_kg: String(patient.weight_kg) as unknown as number,
+          height_cm: String(patient.height_cm) as unknown as number,
+          glasgow_score: String(patient.glasgow_score) as unknown as number,
+        }
+      : { glasgow_score: 15 },
   });
 
   const {
     mutate: createPatient,
-    isPending,
-    isError,
+    isPending: isCreating,
+    isError: isCreateError,
   } = useMutation({
     mutationFn: async (data: PatientFormData) => {
       const { data: res } = await api.post("/patients", data);
@@ -63,8 +74,21 @@ export default function PatientForm({ onSuccess }: PatientFormProps) {
     },
   });
 
+  const {
+    mutate: updatePatient,
+    isPending: isUpdating,
+    isError: isUpdateError,
+  } = useUpdatePatient();
+
+  const isPending = isCreating || isUpdating;
+  const isError = isCreateError || isUpdateError;
+
   const onSubmit = (data: PatientFormData) => {
-    createPatient(data);
+    if (isEdit) {
+      updatePatient({ id: patient.id, data }, { onSuccess });
+    } else {
+      createPatient(data);
+    }
   };
 
   return (
@@ -90,9 +114,9 @@ export default function PatientForm({ onSuccess }: PatientFormProps) {
         <Field label="Gender" error={errors.gender?.message}>
           <select {...register("gender")} className={inputClass}>
             <option value="">Select...</option>
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-            <option value="X">Other</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
           </select>
         </Field>
       </div>
@@ -132,7 +156,9 @@ export default function PatientForm({ onSuccess }: PatientFormProps) {
 
       {isError && (
         <p className="text-xs text-red-400 bg-red-950 border border-red-800 rounded-lg px-3 py-2">
-          Failed to create patient. Please try again.
+          {isEdit
+            ? "Failed to update patient. Please try again."
+            : "Failed to create patient. Please try again."}
         </p>
       )}
 
@@ -142,7 +168,13 @@ export default function PatientForm({ onSuccess }: PatientFormProps) {
           disabled={isPending}
           className="flex-1 h-10 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
         >
-          {isPending ? "Admitting..." : "Admit patient"}
+          {isPending
+            ? isEdit
+              ? "Saving..."
+              : "Admitting..."
+            : isEdit
+              ? "Save changes"
+              : "Admit patient"}
         </button>
       </div>
     </form>

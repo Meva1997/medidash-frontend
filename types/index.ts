@@ -15,7 +15,7 @@ export interface Patient {
   id: number;
   full_name: string;
   age: number;
-  gender: string;
+  gender: "male" | "female" | "other";
   weight_kg: number;
   height_cm: number;
   glasgow_score: number;

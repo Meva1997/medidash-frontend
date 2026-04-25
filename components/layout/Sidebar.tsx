@@ -10,8 +10,8 @@ const navItems = [
     href: "/patients",
     label: "Patients",
     icon: (
-      <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+      <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
+        <path d="M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0m8 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-4.07 11q.07-.49.07-1a6.97 6.97 0 0 0-1.5-4.33A5 5 0 0 1 19 16v1zM6 11a5 5 0 0 1 5 5v1H1v-1a5 5 0 0 1 5-5" />
       </svg>
     ),
   },
@@ -19,10 +19,10 @@ const navItems = [
     href: "/drugs",
     label: "Drug checker",
     icon: (
-      <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+      <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
         <path
           fillRule="evenodd"
-          d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z"
+          d="M17.707 9.293a1 1 0 0 1 0 1.414l-7 7a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 10V5a3 3 0 0 1 3-3h5c.256 0 .512.098.707.293zM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
           clipRule="evenodd"
         />
       </svg>
@@ -46,14 +46,14 @@ export default function Sidebar() {
       <div className="px-5 py-5 border-b border-gray-800">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-teal-600 rounded-md flex items-center justify-center">
-            <svg viewBox="0 0 18 18" fill="none" className="w-3.5 h-3.5">
+            <svg fill="none" className="w-3.5 h-3.5" viewBox="0 0 18 18">
               <path
-                d="M9 2v14M2 9h14"
-                stroke="white"
-                strokeWidth="2.5"
+                stroke="#fff"
                 strokeLinecap="round"
+                strokeWidth="2.5"
+                d="M9 2v14M2 9h14"
               />
-              <circle cx="9" cy="9" r="3.5" stroke="white" strokeWidth="1.5" />
+              <circle cx="9" cy="9" r="3.5" stroke="#fff" strokeWidth="1.5" />
             </svg>
           </div>
           <span className="text-gray-100 font-medium tracking-tight">
@@ -103,10 +103,10 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-300 hover:bg-gray-800 transition-colors"
         >
-          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
-              d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+              d="M3 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm10.293 9.293a1 1 0 0 0 1.414 1.414l3-3a1 1 0 0 0 0-1.414l-3-3a1 1 0 1 0-1.414 1.414L14.586 9H7a1 1 0 1 0 0 2h7.586z"
               clipRule="evenodd"
             />
           </svg>

@@ -20,7 +20,7 @@ export const patientSchema = z.object({
   age: coerceNumber(0, 120, "Age").pipe(
     z.number().int("Age must be a whole number"),
   ),
-  gender: z.enum(["M", "F", "X"], {
+  gender: z.enum(["male", "female", "other"], {
     error: "Please select a gender",
   }),
   weight_kg: coerceNumber(0.1, 500, "Weight"),
