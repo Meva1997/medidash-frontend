@@ -7,7 +7,7 @@ export function usePatients() {
   return useQuery<Patient[]>({
     queryKey: ["patients"],
     queryFn: async () => {
-      const { data } = await api.get("/patients");
+      const { data } = await api.get("/patients/");
       return data;
     },
   });

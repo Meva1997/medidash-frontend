@@ -65,7 +65,7 @@ export default function PatientForm({ onSuccess, patient }: PatientFormProps) {
     isError: isCreateError,
   } = useMutation({
     mutationFn: async (data: PatientFormData) => {
-      const { data: res } = await api.post("/patients", data);
+      const { data: res } = await api.post("/patients/", data);
       return res;
     },
     onSuccess: () => {

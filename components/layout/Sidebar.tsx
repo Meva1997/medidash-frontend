@@ -92,6 +92,9 @@ export default function Sidebar() {
       {/* User footer */}
       <div className="px-3 py-4 border-t border-gray-800">
         <div className="px-2 py-2 mb-1">
+          <p className="text-lg font-medium text-gray-300 truncate">
+            {user?.full_name}
+          </p>
           <p className="text-xs font-medium text-gray-300 truncate">
             {user?.email}
           </p>

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import Cookies from "js-cookie";
 import { User } from "@/types";
 
@@ -15,12 +21,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => Cookies.get("access_token") ?? null);
+  const [token, setToken] = useState<string | null>(
+    () => Cookies.get("access_token") ?? null,
+  );
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser) as User);
+    const fetchUser = async () => {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) setUser(JSON.parse(savedUser) as User);
+    };
+    fetchUser();
   }, []);
 
   const login = (token: string, user: User) => {

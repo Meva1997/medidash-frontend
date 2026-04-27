@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
@@ -25,18 +25,10 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    setValue,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { role: "doctor" },
-  });
-
-  const selectedRole = useWatch({
-    control,
-    name: "role",
-    defaultValue: "doctor",
   });
 
   const onSubmit = async (data: LoginForm) => {
@@ -52,8 +44,9 @@ export default function LoginPage() {
       });
 
       const user: User = {
-        id: 0,
+        id: res.id,
         email: res.email,
+        full_name: res.full_name,
         role: data.role as Role,
       };
       login(res.access_token, user);
@@ -181,28 +174,6 @@ export default function LoginPage() {
                   {errors.password.message}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
-                Role
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {(["doctor", "nurse"] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setValue("role", r)}
-                    className={`py-2.5 rounded-lg border text-sm font-medium capitalize transition-all ${
-                      selectedRole === r
-                        ? "border-teal-500 bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300"
-                        : "border-gray-200 dark:border-gray-700 text-gray-500 hover:border-gray-300"
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {serverError && (

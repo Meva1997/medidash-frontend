@@ -10,6 +10,7 @@ import {
 } from "@/hooks/useChecklists";
 import { getBMIColor, getGlasgowColor } from "@/lib/utils";
 import PatientForm from "@/components/patients/PatientForm";
+import ConsultationsPanel from "../consultations/ConsultationsPanel";
 
 interface PatientProfileProps {
   patient: Patient;
@@ -20,7 +21,6 @@ export default function PatientProfile({
   patient,
   checklists,
 }: PatientProfileProps) {
-  console.log("🚀 ~ PatientProfile ~ patient:", patient.gender);
   const router = useRouter();
   const { user } = useAuth();
   const [showEditForm, setShowEditForm] = useState(false);
@@ -148,6 +148,10 @@ export default function PatientProfile({
             )}
           </div>
         ))}
+      </div>
+
+      <div className="my-8">
+        <ConsultationsPanel patientId={patient.id} />
       </div>
 
       {/* Checklists */}
