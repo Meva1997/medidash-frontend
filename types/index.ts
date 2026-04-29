@@ -94,10 +94,15 @@ export interface Prescription {
   original_id: number | null;
 }
 
+interface Doctor {
+  id: number;
+  full_name: string;
+}
+
 export interface Consultation {
   id: number;
   patient_id: number;
-  doctor_id: number;
+  doctor: Doctor;
   reason: string;
   notes: string | null;
   created_at: string;

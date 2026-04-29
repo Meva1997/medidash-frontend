@@ -14,6 +14,18 @@ export function getBMIColor(category: string): string {
   return map[category] ?? "text-gray-400";
 }
 
+export function formatDateTime(isoString: string): string {
+  const date = new Date(isoString);
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 // Utility function to get the color class for a given Glasgow Coma Scale score.
 export function getGlasgowColor(score: number): string {
   if (score >= 13) return "text-green-400";

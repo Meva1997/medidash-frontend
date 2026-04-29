@@ -10,7 +10,7 @@ import {
 } from "@/hooks/useChecklists";
 import { getBMIColor, getGlasgowColor } from "@/lib/utils";
 import PatientForm from "@/components/patients/PatientForm";
-import ConsultationsPanel from "../consultations/ConsultationsPanel";
+import ConsultationsPanel from "../consultations/ConsultationPanel";
 
 interface PatientProfileProps {
   patient: Patient;
