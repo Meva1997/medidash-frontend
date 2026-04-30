@@ -16,7 +16,7 @@ export function useDrugs() {
 export function useCheckInteractions() {
   return useMutation<InteractionResult[], Error, string[]>({
     mutationFn: async (drugNames: string[]) => {
-      const { data } = await api.post("/drugs/interactions", {
+      const { data } = await api.post("/drugs/interactions/", {
         drug_names: drugNames,
       });
       return data.alerts;
