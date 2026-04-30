@@ -49,7 +49,7 @@ export function useAddDiagnosis() {
       patientId: number;
       description: string;
     }) => {
-      const { data } = await api.post(`/${consultationId}/diagnoses`, {
+      const { data } = await api.post(`/consultations/${consultationId}/diagnoses`, {
         description,
       });
       return data;
@@ -83,7 +83,7 @@ export function useAddPrescription() {
       route: RouteOfAdministration;
       instructions?: string;
     }) => {
-      const { data } = await api.post(`/${consultationId}/prescriptions`, {
+      const { data } = await api.post(`/consultations/${consultationId}/treatments`, {
         medication_name,
         dose,
         frequency,
