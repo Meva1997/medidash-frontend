@@ -20,7 +20,7 @@ export interface Patient {
   weight_kg: number;
   height_cm: number;
   glasgow_score: number;
-  created_at: string; // agrega esto
+  created_at: string;
   bmi: number;
   bmi_category: string;
   glasgow_interpretation: string;
@@ -72,7 +72,7 @@ export interface Diagnosis {
   consultation_id: number;
   description: string;
   created_at: string;
-  diagnosed_by_id: number;
+  diagnosed_by: { id: number; full_name: string };
   is_active: boolean;
   superseded_at: string | null;
   original_id: number | null;
@@ -80,7 +80,7 @@ export interface Diagnosis {
 
 export interface Prescription {
   id: number;
-  consultation_id: number;
+  treatment_id: number;
   medication_name: string;
   dose: string;
   frequency: string;
@@ -88,24 +88,25 @@ export interface Prescription {
   route: RouteOfAdministration;
   instructions: string | null;
   prescribed_at: string;
-  prescribed_by_id: number;
-  is_active: boolean;
-  superseded_at: string | null;
-  original_id: number | null;
+  prescribed_by: { id: number; full_name: string };
 }
 
-interface Doctor {
+export interface Treatment {
   id: number;
-  full_name: string;
+  consultation_id: number;
+  created_by: { id: number; full_name: string };
+  created_at: string;
+  is_active: boolean;
+  prescriptions: Prescription[];
 }
 
 export interface Consultation {
   id: number;
   patient_id: number;
-  doctor: Doctor;
+  doctor: { id: number; full_name: string };
   reason: string;
   notes: string | null;
   created_at: string;
   diagnoses: Diagnosis[];
-  prescriptions: Prescription[];
+  treatments: Treatment[];
 }

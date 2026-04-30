@@ -9,7 +9,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS_v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 
-**Live Demo:** [medidash.vercel.app](https://medidash.vercel.app) · **API Docs:** [medidash-api.onrender.com/docs](https://medidash-api.onrender.com/docs)
+**Live Demo:** [medidash-frontend.vercel.app](https://medidash-frontend.vercel.app) · **API Docs:** [medidash-api.onrender.com/docs](https://medidash-api.onrender.com/docs)
 
 ---
 

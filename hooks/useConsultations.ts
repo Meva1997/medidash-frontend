@@ -49,9 +49,12 @@ export function useAddDiagnosis() {
       patientId: number;
       description: string;
     }) => {
-      const { data } = await api.post(`/consultations/${consultationId}/diagnoses`, {
-        description,
-      });
+      const { data } = await api.post(
+        `/consultations/${consultationId}/diagnoses`,
+        {
+          description,
+        },
+      );
       return data;
     },
     onSuccess: (_, { patientId }) => {
@@ -62,35 +65,63 @@ export function useAddDiagnosis() {
   });
 }
 
+
 export function useAddPrescription() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       consultationId,
-      medication_name,
-      dose,
-      frequency,
-      duration,
-      route,
-      instructions,
+      prescriptions,
     }: {
       consultationId: number;
       patientId: number;
-      medication_name: string;
-      dose: string;
-      frequency: string;
-      duration: string;
-      route: RouteOfAdministration;
-      instructions?: string;
+      prescriptions: Array<{
+        medication_name: string;
+        dose: string;
+        frequency: string;
+        duration: string;
+        route: RouteOfAdministration;
+        instructions?: string;
+      }>;
     }) => {
-      const { data } = await api.post(`/consultations/${consultationId}/treatments`, {
-        medication_name,
-        dose,
-        frequency,
-        duration,
-        route,
-        instructions,
+      const { data } = await api.post(
+        `/consultations/${consultationId}/treatments`,
+        { prescriptions },
+      );
+      return data;
+    },
+    onSuccess: (_, { patientId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["consultations", "patient", patientId],
       });
+    },
+  });
+}
+
+export function useUpdateTreatment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      consultationId,
+      treatmentId,
+      prescriptions,
+    }: {
+      consultationId: number;
+      patientId: number;
+      treatmentId: number;
+      prescriptions: Array<{
+        medication_name: string;
+        dose: string;
+        frequency: string;
+        duration: string;
+        route: RouteOfAdministration;
+        instructions?: string;
+      }>;
+    }) => {
+      const { data } = await api.patch(
+        `/consultations/${consultationId}/treatments/${treatmentId}`,
+        { prescriptions },
+      );
       return data;
     },
     onSuccess: (_, { patientId }) => {

@@ -46,6 +46,7 @@ Auth state is managed client-side in `context/AuthContext.tsx`. Uses `js-cookie`
 All server communication goes through `lib/api.ts`. Feature-specific hooks in `hooks/` wrap TanStack Query:
 
 - `usePatients` — list; `usePatient(id)` — single; `useDeletePatient` — delete
+- `usePatientConsultations(patientId)`, `useCreateConsultation`, `useAddDiagnosis`, `useAddPrescription` (POST `/consultations/{id}/treatments`), `useUpdateTreatment` (PATCH `/consultations/{id}/treatments/{treatmentId}`)
 - `usePatientChecklists(patientId)`, `useCreateChecklist`, `useToggleChecklistItem`
 - `useDrugs`, `useAuth`
 
@@ -63,9 +64,11 @@ Custom primitives live in `components/ui/` (Button, Card, Input, Badge). Feature
 
 ### Types
 
-`types/index.ts` is the single source of truth for shared types: `Role`, `User`, `AuthTokens`, `Patient`, `Drug`, `InteractionResult`, `Checklist`, `ChecklistItem`.
+`types/index.ts` is the single source of truth for shared types: `Role`, `User`, `AuthTokens`, `Patient`, `Drug`, `InteractionResult`, `Checklist`, `ChecklistItem`, `RouteOfAdministration`, `Diagnosis`, `Prescription`, `Treatment`, `Consultation`.
 
 `Patient` includes server-computed fields: `bmi`, `bmi_category`, `glasgow_interpretation`, `created_at`.
+
+Prescription model: prescriptions belong to a `Treatment` (not directly to a consultation). Each consultation has `treatments: Treatment[]`; only one treatment has `is_active: true` at a time. `ConsultationCard` renders the active treatment and a collapsed history of previous ones. Doctors can add a new treatment or edit the active one via `AddPrescriptionForm` (mode toggled via `rxFormMode` state: `null | "new" | "edit"`).
 
 ### Environment
 

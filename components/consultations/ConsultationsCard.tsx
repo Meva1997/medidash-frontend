@@ -17,12 +17,17 @@ export default function ConsultationCard({
   const isDoctor = user?.role === "doctor";
   const [expanded, setExpanded] = useState(false);
   const [showDxForm, setShowDxForm] = useState(false);
-  const [showRxForm, setShowRxForm] = useState(false);
+  const [rxFormMode, setRxFormMode] = useState<null | "new" | "edit">(null);
 
   const activeDiagnoses = consultation.diagnoses.filter((d) => d.is_active);
-  const activePrescriptions = consultation.prescriptions.filter(
-    (p) => p.is_active,
-  );
+  const activeTreatment =
+    consultation.treatments.find((t) => t.is_active) ?? null;
+  const historicalTreatments = consultation.treatments
+    .filter((t) => !t.is_active)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
 
   return (
     <div className="border border-gray-800 rounded-xl overflow-hidden">
@@ -45,7 +50,8 @@ export default function ConsultationCard({
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs text-gray-600">
-            {activeDiagnoses.length} dx · {activePrescriptions.length} rx
+            {activeDiagnoses.length} dx ·{" "}
+            {activeTreatment?.prescriptions.length ?? 0} rx
           </span>
           <svg
             fill="currentColor"
@@ -105,12 +111,11 @@ export default function ConsultationCard({
                 className="flex items-start gap-2 py-1.5 border-b border-gray-800 last:border-0"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-teal-600 mt-1.5 shrink-0" />
-
                 <div>
                   <p className="text-sm text-gray-300">{dx.description}</p>
                   <div className="flex justify-between w-80">
                     <p className="text-xs text-gray-500">
-                      Diagnosed by Dr.{consultation.doctor.full_name}
+                      Diagnosed by Dr. {consultation.doctor.full_name}
                     </p>
                     <p className="text-xs text-gray-500">
                       {formatDateTime(dx.created_at)}
@@ -134,49 +139,114 @@ export default function ConsultationCard({
               <p className="text-xs text-gray-500 uppercase tracking-wide">
                 Prescriptions
               </p>
-              {isDoctor && !showRxForm && (
+              {isDoctor && rxFormMode === null && (
                 <button
-                  onClick={() => setShowRxForm(true)}
+                  onClick={() => setRxFormMode("new")}
                   className="text-xs text-teal-500 hover:text-teal-400 transition-colors"
                 >
-                  + Add
+                  + New
                 </button>
               )}
             </div>
-            {activePrescriptions.length === 0 && !showRxForm && (
+
+            {/* Active treatment */}
+            {activeTreatment && rxFormMode !== "edit" && (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-gray-600">
+                    Current · {formatDateTime(activeTreatment.created_at)}
+                  </p>
+                  {isDoctor && rxFormMode === null && (
+                    <button
+                      onClick={() => setRxFormMode("edit")}
+                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+                {activeTreatment.prescriptions.map((rx, i) => (
+                  <div key={rx.id} className="flex gap-2 py-0.5">
+                    <span className="text-xs text-gray-600 shrink-0 w-4 text-right">
+                      {i + 1}.
+                    </span>
+                    <div>
+                      <p className="text-sm text-gray-200">
+                        {rx.medication_name}{" "}
+                        <span className="font-medium">{rx.dose}</span>{" "}
+                        <span className="text-gray-500">
+                          · {rx.frequency} · {rx.duration}
+                          {rx.route !== "oral" && (
+                            <span className="capitalize"> · {rx.route}</span>
+                          )}
+                        </span>
+                      </p>
+                      {rx.instructions && (
+                        <p className="text-xs text-gray-600 italic mt-0.5">
+                          {rx.instructions}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Edit form — replaces active treatment display */}
+            {rxFormMode === "edit" && activeTreatment && (
+              <AddPrescriptionForm
+                consultationId={consultation.id}
+                patientId={patientId}
+                activeTreatment={activeTreatment}
+                onClose={() => setRxFormMode(null)}
+              />
+            )}
+
+            {/* New treatment form */}
+            {rxFormMode === "new" && (
+              <AddPrescriptionForm
+                consultationId={consultation.id}
+                patientId={patientId}
+                activeTreatment={null}
+                onClose={() => setRxFormMode(null)}
+              />
+            )}
+
+            {/* Empty state */}
+            {activeTreatment === null && rxFormMode === null && (
               <p className="text-xs text-gray-700 italic">
                 No prescriptions recorded
               </p>
             )}
-            {activePrescriptions.map((rx) => (
-              <div
-                key={rx.id}
-                className="py-2 border-b border-gray-800 last:border-0 space-y-0.5"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-200">
-                    {rx.medication_name}
-                  </p>
-                  <span className="text-xs text-gray-600 capitalize">
-                    {rx.route}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {rx.dose} · {rx.frequency} · {rx.duration}
+
+            {/* Historical treatments */}
+            {historicalTreatments.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-800 space-y-3">
+                <p className="text-xs text-gray-700 uppercase tracking-wide">
+                  Previous
                 </p>
-                {rx.instructions && (
-                  <p className="text-xs text-gray-600 italic">
-                    {rx.instructions}
-                  </p>
-                )}
+                {historicalTreatments.map((treatment) => (
+                  <div key={treatment.id}>
+                    <p className="text-xs text-gray-700 mb-1">
+                      {formatDateTime(treatment.created_at)}
+                    </p>
+                    {treatment.prescriptions.map((rx, i) => (
+                      <div key={rx.id} className="flex gap-2 py-0.5">
+                        <span className="text-xs text-gray-700 shrink-0 w-4 text-right">
+                          {i + 1}.
+                        </span>
+                        <p className="text-xs text-gray-600">
+                          {rx.medication_name} {rx.dose} · {rx.frequency} ·{" "}
+                          {rx.duration}
+                          {rx.route !== "oral" && (
+                            <span className="capitalize"> · {rx.route}</span>
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
-            ))}
-            {showRxForm && (
-              <AddPrescriptionForm
-                consultationId={consultation.id}
-                patientId={patientId}
-                onClose={() => setShowRxForm(false)}
-              />
             )}
           </div>
         </div>
