@@ -89,6 +89,10 @@ export interface Prescription {
   instructions: string | null;
   prescribed_at: string;
   prescribed_by: { id: number; full_name: string };
+  is_active: boolean;
+  superseded_at: string | null;
+  superseded_by: { id: number; full_name: string } | null;
+  original_id: number | null;
 }
 
 export interface Treatment {

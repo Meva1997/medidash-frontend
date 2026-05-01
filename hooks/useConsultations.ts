@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
-import type { Consultation, RouteOfAdministration } from "@/types";
+import type { Consultation, Prescription, RouteOfAdministration } from "@/types";
 
 export function usePatientConsultations(patientId: number) {
   return useQuery<Consultation[]>({
@@ -65,7 +65,6 @@ export function useAddDiagnosis() {
   });
 }
 
-
 export function useAddPrescription() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -98,17 +97,37 @@ export function useAddPrescription() {
   });
 }
 
+export function usePrescriptionHistory(
+  consultationId: number,
+  treatmentId: number,
+  prescriptionId: number,
+  enabled: boolean,
+) {
+  return useQuery<Prescription[]>({
+    queryKey: ["prescriptionHistory", consultationId, treatmentId, prescriptionId],
+    queryFn: async () => {
+      const { data } = await api.get(
+        `/consultations/${consultationId}/treatments/${treatmentId}/prescriptions/${prescriptionId}/history`,
+      );
+      return data;
+    },
+    enabled,
+  });
+}
+
 export function useUpdateTreatment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       consultationId,
       treatmentId,
+      prescriptionId,
       prescriptions,
     }: {
       consultationId: number;
       patientId: number;
       treatmentId: number;
+      prescriptionId: number;
       prescriptions: Array<{
         medication_name: string;
         dose: string;
@@ -119,8 +138,8 @@ export function useUpdateTreatment() {
       }>;
     }) => {
       const { data } = await api.patch(
-        `/consultations/${consultationId}/treatments/${treatmentId}`,
-        { prescriptions },
+        `/consultations/${consultationId}/treatments/${treatmentId}/prescriptions/${prescriptionId}`,
+        prescriptions[0],
       );
       return data;
     },

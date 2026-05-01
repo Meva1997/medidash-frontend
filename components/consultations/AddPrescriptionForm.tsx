@@ -30,6 +30,7 @@ type PrescriptionRow = {
   duration: string;
   route: RouteOfAdministration;
   instructions: string;
+  prescriptionId?: number;
 };
 
 const empty = (): PrescriptionRow => ({
@@ -109,9 +110,15 @@ export default function AddPrescriptionForm({
     }));
 
     const onError = (error: unknown) => {
-      const msg = (error as { response?: { data?: { detail?: string } } })
-        ?.response?.data?.detail;
-      setServerError(msg ?? "Failed to save. Please try again.");
+      const detail = (
+        error as {
+          response?: { data?: { detail?: string | Array<{ msg: string }> } };
+        }
+      )?.response?.data?.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map((e) => e.msg).join(", ")
+        : (detail ?? "Failed to save. Please try again.");
+      setServerError(msg);
     };
 
     if (isEditing) {
@@ -121,6 +128,7 @@ export default function AddPrescriptionForm({
           patientId,
           treatmentId: activeTreatment.id,
           prescriptions,
+          prescriptionId: activeTreatment.prescriptions[0].id,
         },
         { onSuccess: onClose, onError },
       );

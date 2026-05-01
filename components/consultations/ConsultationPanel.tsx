@@ -18,19 +18,22 @@ export default function ConsultationsPanel({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
-          Consultations
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+            Consultations
+          </h2>
+          {!isLoading && consultations && consultations.length > 0 && (
+            <span className="text-xs bg-gray-800 text-gray-500 border border-gray-700 rounded-full px-2 py-0.5">
+              {consultations.length}
+            </span>
+          )}
+        </div>
         {user?.role === "doctor" && !showNewForm && (
           <button
             onClick={() => setShowNewForm(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium rounded-lg transition-colors"
           >
-            <svg
-              fill="currentColor"
-              className="w-3.5 h-3.5"
-              viewBox="0 0 20 20"
-            >
+            <svg fill="currentColor" className="w-3.5 h-3.5" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1"

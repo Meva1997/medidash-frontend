@@ -46,7 +46,7 @@ Auth state is managed client-side in `context/AuthContext.tsx`. Uses `js-cookie`
 All server communication goes through `lib/api.ts`. Feature-specific hooks in `hooks/` wrap TanStack Query:
 
 - `usePatients` — list; `usePatient(id)` — single; `useDeletePatient` — delete
-- `usePatientConsultations(patientId)`, `useCreateConsultation`, `useAddDiagnosis`, `useAddPrescription` (POST `/consultations/{id}/treatments`), `useUpdateTreatment` (PATCH `/consultations/{id}/treatments/{treatmentId}`)
+- `usePatientConsultations(patientId)`, `useCreateConsultation`, `useAddDiagnosis`, `useAddPrescription` (POST `/consultations/{id}/treatments`), `useUpdateTreatment` (PATCH `/consultations/{id}/treatments/{treatmentId}/prescriptions/{prescriptionId}` — patches a single prescription), `usePrescriptionHistory(consultationId, treatmentId, prescriptionId, enabled)` (GET `/consultations/{id}/treatments/{treatmentId}/prescriptions/{prescriptionId}/history`)
 - `usePatientChecklists(patientId)`, `useCreateChecklist`, `useToggleChecklistItem`
 - `useDrugs`, `useAuth`
 
@@ -68,7 +68,9 @@ Custom primitives live in `components/ui/` (Button, Card, Input, Badge). Feature
 
 `Patient` includes server-computed fields: `bmi`, `bmi_category`, `glasgow_interpretation`, `created_at`.
 
-Prescription model: prescriptions belong to a `Treatment` (not directly to a consultation). Each consultation has `treatments: Treatment[]`; only one treatment has `is_active: true` at a time. `ConsultationCard` renders the active treatment and a collapsed history of previous ones. Doctors can add a new treatment or edit the active one via `AddPrescriptionForm` (mode toggled via `rxFormMode` state: `null | "new" | "edit"`).
+Prescription model: prescriptions belong to a `Treatment` (not directly to a consultation). Each consultation has `treatments: Treatment[]`; only one treatment has `is_active: true` at a time. `ConsultationCard` renders the active treatment and a collapsed history of previous ones (toggled via `showHistory` state). Doctors can add a new treatment or edit the active one via `AddPrescriptionForm` (mode toggled via `rxFormMode` state: `null | "new" | "edit"`).
+
+`Prescription` includes versioning fields: `is_active`, `superseded_at`, `superseded_by`, `original_id`. When `original_id !== null` the prescription has been edited; `PrescriptionItem` renders a "View edits" button that fetches and displays the previous versions inline using `usePrescriptionHistory`. Each prescription in the active treatment is rendered via `PrescriptionItem` (`components/consultations/PrescriptionItem.tsx`).
 
 ### Environment
 

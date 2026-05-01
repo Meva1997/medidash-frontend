@@ -11,6 +11,18 @@
 
 **Live Demo:** [medidash-frontend.vercel.app](https://medidash-frontend.vercel.app) · **API Docs:** [medidash-api.onrender.com/docs](https://medidash-api.onrender.com/docs)
 
+> **Demo credentials** — User: `user@example.com` · Password: `String97`
+
+---
+
+## Screenshots
+
+### Patient Detail — Consultations, Diagnoses & Prescriptions
+![Patient Info](public/patient-info-image.png)
+
+### Drug Interaction Checker
+![Drug Interactions](public/drug-int-image.png)
+
 ---
 
 ## Overview
@@ -38,10 +50,13 @@ The project was designed to reflect real clinical workflows — not a generic CR
 
 ### Consultations
 - Full consultation history per patient, embedded on the patient detail page
+- Consultation cards display doctor name, timestamp, and dx/rx count badges at a glance
 - Doctors can open a new consultation with a chief complaint and optional clinical notes
 - Each consultation supports expandable cards showing active **diagnoses** and **prescriptions**
 - Doctors can add diagnoses and prescriptions directly from the consultation card
 - Prescription fields: medication name, dose, frequency, duration, route of administration (oral, IV, IM, subcutaneous, topical, inhalation, sublingual, rectal, ophthalmic, otic), and optional instructions
+- **Prescription edit history**: each prescription tracks its full version history — a "View edits" button appears on modified prescriptions and shows previous values inline with strikethrough styling
+- Historical treatments are collapsed behind a toggle; previous prescriptions are shown in a muted style
 - Nurses have read-only access to consultation history
 
 ### Drug Interaction Checker
@@ -102,8 +117,10 @@ The project was designed to reflect real clinical workflows — not a generic CR
 | DELETE | `/patients/{id}` | JWT | doctor |
 | GET | `/patients/{id}/consultations` | JWT | any |
 | POST | `/patients/{id}/consultations` | JWT | doctor |
-| POST | `/{consultation_id}/diagnoses` | JWT | doctor |
-| POST | `/{consultation_id}/prescriptions` | JWT | doctor |
+| POST | `/consultations/{id}/diagnoses` | JWT | doctor |
+| POST | `/consultations/{id}/treatments` | JWT | doctor |
+| PATCH | `/consultations/{id}/treatments/{tId}/prescriptions/{pId}` | JWT | doctor |
+| GET | `/consultations/{id}/treatments/{tId}/prescriptions/{pId}/history` | JWT | any |
 | GET | `/drugs/` | JWT | any |
 | POST | `/drugs/interactions` | JWT | any |
 | POST | `/checklists/` | JWT | doctor |
