@@ -33,6 +33,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  console.log("🚀 ~ Sidebar ~ user:", user);
   const router = useRouter();
 
   const handleLogout = () => {

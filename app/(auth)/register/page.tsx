@@ -5,55 +5,56 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import api from "@/lib/api";
-import { type User, type Role } from "@/types";
-import { DemoCredentials } from "@/components/ui/DemoCredentials";
-import Link from "next/link";
+import { useRegister } from "@/hooks/useRegister";
+import { type Role } from "@/types";
 
-const loginSchema = z.object({
+const registerSchema = z.object({
+  full_name: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  role: z.enum(["doctor", "nurse"], "Role must be either doctor or nurse"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  role: z.enum(["doctor", "nurse"], {
+    error: "Role must be either doctor or nurse",
+  }),
 });
 
-type LoginForm = z.infer<typeof loginSchema>;
+type RegisterForm = z.infer<typeof registerSchema>;
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { mutateAsync: register } = useRegister();
   const [serverError, setServerError] = useState("");
   const [errorKey, setErrorKey] = useState(0);
 
   const {
-    register,
+    register: field,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
     defaultValues: { role: "doctor" },
   });
 
-  const onSubmit = async (data: LoginForm) => {
+  const onSubmit = async (data: RegisterForm) => {
     try {
-      const params = new URLSearchParams();
-      params.append("username", data.email);
-      params.append("password", data.password);
-
-      const { data: res } = await api.post("/auth/login", params, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      await register({
+        full_name: data.full_name,
+        email: data.email,
+        password: data.password,
+        role: data.role as Role,
       });
-
-      const user: User = {
-        id: res.id,
-        email: res.email,
-        full_name: res.full_name,
-        role: res.role as Role,
-      };
-      login(res.access_token, user);
-      router.push("/patients");
-    } catch {
-      setServerError("Invalid credentials. Please try again.");
+      router.push("/login");
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })
+        ?.response?.data?.detail;
+      setServerError(
+        typeof detail === "string"
+          ? detail
+          : "Registration failed. Please try again.",
+      );
       setErrorKey((k) => k + 1);
     }
   };
@@ -82,26 +83,23 @@ export default function LoginPage() {
 
           <div className="flex-1 flex flex-col justify-center py-10">
             <h2 className="text-2xl font-medium text-gray-100 leading-snug tracking-tight mb-3">
-              Clinical intelligence for your entire team
+              Join your clinical team today
             </h2>
             <p className="text-sm text-slate-500 leading-relaxed mb-6">
-              Role-based access, real-time patient data, and drug safety checks
-              — built for how hospitals actually work.
+              Register to access patient records, drug safety checks, and
+              surgical checklists.
             </p>
             <div className="flex flex-wrap gap-2">
-              {[
-                "JWT Auth",
-                "RBAC",
-                "Drug interactions",
-                "Surgical checklists",
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs px-2.5 py-1 rounded-full bg-slate-900 text-slate-500 border border-slate-800"
-                >
-                  {tag}
-                </span>
-              ))}
+              {["Doctor roles", "Nurse roles", "RBAC", "Secure access"].map(
+                (tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2.5 py-1 rounded-full bg-slate-900 text-slate-500 border border-slate-800"
+                  >
+                    {tag}
+                  </span>
+                ),
+              )}
             </div>
           </div>
 
@@ -130,14 +128,31 @@ export default function LoginPage() {
         <div className="bg-white dark:bg-gray-900 p-10 flex flex-col justify-center">
           <div className="mb-8">
             <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 tracking-tight mb-1">
-              Sign in to your account
+              Create your account
             </h3>
             <p className="text-sm text-gray-500">
-              Enter your credentials to access the dashboard
+              Fill in your details to register as medical staff
             </p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+                Full name
+              </label>
+              <input
+                type="text"
+                placeholder="Dr. Jane Smith"
+                {...field("full_name")}
+                className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+              {errors.full_name && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.full_name.message}
+                </p>
+              )}
+            </div>
+
             <div>
               <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
                 Email
@@ -145,7 +160,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="doctor@hospital.com"
-                {...register("email")}
+                {...field("email")}
                 className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               />
               {errors.email && (
@@ -162,12 +177,30 @@ export default function LoginPage() {
               <input
                 type="password"
                 placeholder="••••••••"
-                {...register("password")}
+                {...field("password")}
                 className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               />
               {errors.password && (
                 <p className="text-xs text-red-500 mt-1">
                   {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+                Role
+              </label>
+              <select
+                {...field("role")}
+                className="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="doctor">Doctor</option>
+                <option value="nurse">Nurse</option>
+              </select>
+              {errors.role && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.role.message}
                 </p>
               )}
             </div>
@@ -186,18 +219,16 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="w-full h-10 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors mt-2"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? "Creating account..." : "Create account"}
             </button>
           </form>
 
           <p className="mt-4 text-center text-xs text-gray-400">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-teal-600 hover:underline">
-              Register here
-            </Link>
+            Already have an account?{" "}
+            <a href="/login" className="text-teal-600 hover:underline">
+              Sign in
+            </a>
           </p>
-
-          <DemoCredentials />
         </div>
       </div>
     </div>

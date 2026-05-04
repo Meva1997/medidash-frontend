@@ -46,7 +46,7 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 | React Hook Form + Zod | Runtime + type-level form validation from a single schema (`lib/schemas/`) |
 | Prescription versioning | Each `Prescription` tracks `original_id`, `superseded_at`, and `superseded_by` — full edit history fetchable without extra tables |
 | Axios interceptor on 401 | Centralized auth expiry handling: any failed request auto-redirects to `/login` |
-| Route guard in `proxy.ts` | Next.js middleware-level redirect before any page renders |
+| Route guard in `proxy.ts` | Next.js middleware-level redirect before any page renders; `/login` and `/register` are public |
 | Dark-only UI | Consistent dark palette (`bg-gray-950`) via a single `class="dark"` on `<html>` |
 
 ---
@@ -54,17 +54,18 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 ## Features
 
 ### Authentication & Role-Based Access
-- JWT auth with `doctor` and `nurse` roles assigned server-side
+- JWT auth with `doctor` and `nurse` roles assigned server-side and returned in the login response
+- Self-registration via `/register` with full name, email, password, and role selection
 - Cookie-based token storage via `js-cookie`; `User` object persisted in `localStorage`
-- Route guard in `proxy.ts`: unauthenticated users redirected to `/login`, authenticated users away from it
-- Axios instance auto-redirects on 401, preventing stale sessions from reaching the UI
+- Route guard in `proxy.ts`: unauthenticated users redirected to `/login`, authenticated users away from `/login` and `/register`
+- Axios instance auto-redirects on 401, except on the login endpoint itself (prevents redirect loop on bad credentials)
 - Doctors: full patient management, consultation creation, diagnosis/prescription entry, checklist creation
-- Nurses: checklist item toggling and read-only consultation history
+- Nurses: patient data editing (`weight_kg`, `height_cm`, `glasgow_score`), checklist item toggling, read-only consultation history
 
 ### Patient Management
 - Patient list with live search, role-gated "Admit patient" button, and delete with confirmation dialog
 - Admit/edit form validated with **React Hook Form + Zod**: `full_name`, `age`, `gender` (`M`/`F`/`X`), `weight_kg`, `height_cm`, `glasgow_score`
-- Edit existing records via modal on the patient detail page (`PUT /patients/{id}`)
+- Edit existing records via modal on the patient detail page (`PUT /patients/{id}`) — available to both doctors and nurses
 - Server-computed BMI (with color-coded category) and Glasgow Coma Scale interpretation rendered inline
 
 ### Consultations & Prescriptions
@@ -204,13 +205,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 medidash-frontend/
 ├── app/
-│   ├── (auth)/login/          # Login page (JWT form, role assigned server-side)
+│   ├── (auth)/
+│   │   ├── login/             # Login page with click-to-copy demo credentials
+│   │   └── register/          # Registration page (full name, email, password, role)
 │   └── (dashboard)/           # Protected layout (Sidebar only)
 │       ├── patients/          # Patient census + admit modal
 │       ├── patients/[id]/     # Patient detail: stats + consultations + checklists
 │       └── drugs/             # Drug interaction checker
 ├── components/
-│   ├── ui/                    # Button, Badge, Card, Input, ConfirmDialog
+│   ├── ui/                    # Button, Badge, Card, Input, ConfirmDialog, DemoCredentials
 │   ├── layout/                # Sidebar (role-aware nav, full name display, logout)
 │   ├── patients/              # PatientTable, PatientForm, PatientProfile
 │   ├── consultations/         # ConsultationsPanel, PrescriptionItem (with edit history)
@@ -220,7 +223,8 @@ medidash-frontend/
 │   ├── usePatients.ts
 │   ├── useConsultations.ts    # includes useAddPrescription, useUpdateTreatment, usePrescriptionHistory
 │   ├── useChecklists.ts
-│   └── useDrugs.ts
+│   ├── useDrugs.ts
+│   └── useRegister.ts         # registration mutation
 ├── lib/
 │   ├── api.ts                 # Axios instance (auto-redirect on 401)
 │   ├── schemas/               # Zod schemas (patient.schema.ts)
