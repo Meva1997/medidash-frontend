@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const navItems = [
   {
@@ -30,10 +31,28 @@ const navItems = [
   },
 ];
 
-export default function Sidebar() {
+function BrandLogo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="w-7 h-7 bg-teal-600 rounded-md flex items-center justify-center shrink-0">
+        <svg fill="none" className="w-3.5 h-3.5" viewBox="0 0 18 18">
+          <path
+            stroke="#fff"
+            strokeLinecap="round"
+            strokeWidth="2.5"
+            d="M9 2v14M2 9h14"
+          />
+          <circle cx="9" cy="9" r="3.5" stroke="#fff" strokeWidth="1.5" />
+        </svg>
+      </div>
+      <span className="text-gray-100 font-medium tracking-tight">MediDash</span>
+    </div>
+  );
+}
+
+function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  console.log("🚀 ~ Sidebar ~ user:", user);
   const router = useRouter();
 
   const handleLogout = () => {
@@ -42,25 +61,31 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-56 shrink-0 bg-gray-900 border-r border-gray-800 flex flex-col h-screen sticky top-0">
+    <>
       {/* Brand */}
-      <div className="px-5 py-5 border-b border-gray-800">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-teal-600 rounded-md flex items-center justify-center">
-            <svg fill="none" className="w-3.5 h-3.5" viewBox="0 0 18 18">
+      <div className="px-5 py-5 border-b border-gray-800 flex items-center justify-between">
+        <BrandLogo />
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-gray-800"
+            aria-label="Close menu"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+            >
               <path
-                stroke="#fff"
                 strokeLinecap="round"
-                strokeWidth="2.5"
-                d="M9 2v14M2 9h14"
+                strokeLinejoin="round"
+                d="M6 18 18 6M6 6l12 12"
               />
-              <circle cx="9" cy="9" r="3.5" stroke="#fff" strokeWidth="1.5" />
             </svg>
-          </div>
-          <span className="text-gray-100 font-medium tracking-tight">
-            MediDash
-          </span>
-        </div>
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -75,6 +100,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors ${
                 isActive
                   ? "bg-teal-950 text-teal-300"
@@ -117,6 +143,58 @@ export default function Sidebar() {
           Sign out
         </button>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export default function Sidebar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <>
+      {/* Desktop sidebar — always visible on md+ */}
+      <aside className="hidden md:flex w-56 shrink-0 bg-gray-900 border-r border-gray-800 flex-col h-screen sticky top-0">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-gray-900 border-b border-gray-800 flex items-center px-4 gap-3">
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="text-gray-400 hover:text-gray-200 transition-colors p-1.5 rounded-lg hover:bg-gray-800"
+          aria-label="Open menu"
+        >
+          <svg
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="w-5 h-5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+        <BrandLogo />
+      </div>
+
+      {/* Mobile drawer + overlay */}
+      {mobileOpen && (
+        <div className="md:hidden">
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Drawer */}
+          <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+            <SidebarContent onClose={() => setMobileOpen(false)} />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
