@@ -14,15 +14,22 @@ interface PatientTableProps {
 
 const BMI_META: Record<string, { fill: string; color: string }> = {
   Underweight: { fill: "25%", color: "#60a5fa" },
-  Normal:      { fill: "50%", color: "#34d399" },
-  Overweight:  { fill: "72%", color: "#fbbf24" },
-  Obese:       { fill: "92%", color: "#f87171" },
+  Normal: { fill: "50%", color: "#34d399" },
+  Overweight: { fill: "72%", color: "#fbbf24" },
+  Obese: { fill: "92%", color: "#f87171" },
 };
 
 function GlasgowSegments({ score }: { score: number | null }) {
   const normalized = score === null ? 0 : Math.max(0, score - 3) / 12;
   const filled = Math.round(normalized * 5);
-  const color = score === null ? "transparent" : score >= 13 ? "#34d399" : score >= 9 ? "#fbbf24" : "#f87171";
+  const color =
+    score === null
+      ? "transparent"
+      : score >= 13
+        ? "#34d399"
+        : score >= 9
+          ? "#fbbf24"
+          : "#f87171";
 
   return (
     <div style={{ display: "flex", gap: 3, marginTop: 5 }}>
@@ -44,7 +51,16 @@ function GlasgowSegments({ score }: { score: number | null }) {
 
 function TrashIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
       <path d="M10 11v6M14 11v6" />
@@ -55,7 +71,16 @@ function TrashIcon() {
 
 function UsersIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="rgba(255,255,255,0.2)"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
@@ -77,7 +102,9 @@ export default function PatientTable({ patients }: PatientTableProps) {
 
   const handleConfirmDelete = () => {
     if (pendingDeleteId === null) return;
-    deletePatient(pendingDeleteId, { onSettled: () => setPendingDeleteId(null) });
+    deletePatient(pendingDeleteId, {
+      onSettled: () => setPendingDeleteId(null),
+    });
   };
 
   const pendingPatient = patients.find((p) => p.id === pendingDeleteId);
@@ -129,13 +156,23 @@ export default function PatientTable({ patients }: PatientTableProps) {
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: 16,
           overflow: "hidden",
-          background: "linear-gradient(180deg, rgba(14,17,27,0.96) 0%, rgba(9,12,21,0.99) 100%)",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
+          background:
+            "linear-gradient(180deg, rgba(14,17,27,0.96) 0%, rgba(9,12,21,0.99) 100%)",
+          boxShadow:
+            "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)",
         }}
       >
-        <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+        <table
+          className="w-full text-sm"
+          style={{ borderCollapse: "separate", borderSpacing: 0 }}
+        >
           <thead>
-            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.015)" }}>
+            <tr
+              style={{
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+                background: "rgba(255,255,255,0.015)",
+              }}
+            >
               {["Patient", "Age", "BMI", "Glasgow", "Admitted"].map((h) => (
                 <th
                   key={h}
@@ -158,7 +195,10 @@ export default function PatientTable({ patients }: PatientTableProps) {
           <tbody>
             {patients.map((patient, index) => {
               const isHovered = hoveredId === patient.id;
-              const bmi = BMI_META[patient.bmi_category] ?? { fill: "50%", color: "#94a3b8" };
+              const bmi = BMI_META[patient.bmi_category] ?? {
+                fill: "50%",
+                color: "#94a3b8",
+              };
               const initials = patient.full_name
                 .split(" ")
                 .map((n) => n[0])
@@ -179,15 +219,17 @@ export default function PatientTable({ patients }: PatientTableProps) {
                     backgroundColor: isHovered
                       ? "rgba(20,184,166,0.04)"
                       : index % 2 !== 0
-                      ? "rgba(255,255,255,0.008)"
-                      : "transparent",
+                        ? "rgba(255,255,255,0.008)"
+                        : "transparent",
                     borderBottom: "1px solid rgba(255,255,255,0.04)",
                     transition: "background-color 0.15s ease",
                   }}
                 >
                   {/* Patient */}
                   <td className="px-5 py-3.5">
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 12 }}
+                    >
                       <div
                         style={{
                           width: 34,
@@ -224,7 +266,14 @@ export default function PatientTable({ patients }: PatientTableProps) {
                         >
                           {patient.full_name}
                         </div>
-                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.18)", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "rgba(255,255,255,0.18)",
+                            marginTop: 2,
+                            fontVariantNumeric: "tabular-nums",
+                          }}
+                        >
                           #{patient.id.toString().padStart(4, "0")}
                         </div>
                       </div>
@@ -233,25 +282,80 @@ export default function PatientTable({ patients }: PatientTableProps) {
 
                   {/* Age */}
                   <td className="px-5 py-3.5">
-                    <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.5)", letterSpacing: "0.02em" }}>
+                    <span
+                      style={{
+                        fontFamily: "ui-monospace, monospace",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "rgba(255,255,255,0.5)",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
                       {patient.age}
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginLeft: 3 }}>yr</span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "rgba(255,255,255,0.2)",
+                          marginLeft: 3,
+                        }}
+                      >
+                        yr
+                      </span>
                     </span>
                   </td>
 
                   {/* BMI */}
                   <td className="px-5 py-3.5">
                     <div>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                        <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 600, color: bmi.color, letterSpacing: "0.02em" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          gap: 6,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: "ui-monospace, monospace",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: bmi.color,
+                            letterSpacing: "0.02em",
+                          }}
+                        >
                           {patient.bmi.toFixed(1)}
                         </span>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.22)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: "rgba(255,255,255,0.22)",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                          }}
+                        >
                           {patient.bmi_category}
                         </span>
                       </div>
-                      <div style={{ width: 52, height: 2, borderRadius: 1, backgroundColor: "rgba(255,255,255,0.06)", overflow: "hidden", marginTop: 6 }}>
-                        <div style={{ height: "100%", width: bmi.fill, backgroundColor: bmi.color, opacity: 0.65, borderRadius: 1, transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)" }} />
+                      <div
+                        style={{
+                          width: 52,
+                          height: 2,
+                          borderRadius: 1,
+                          backgroundColor: "rgba(255,255,255,0.06)",
+                          overflow: "hidden",
+                          marginTop: 6,
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: "100%",
+                            width: bmi.fill,
+                            backgroundColor: bmi.color,
+                            opacity: 0.65,
+                            borderRadius: 1,
+                            transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
+                          }}
+                        />
                       </div>
                     </div>
                   </td>
@@ -259,15 +363,43 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   {/* Glasgow */}
                   <td className="px-5 py-3.5">
                     <div>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          gap: 5,
+                        }}
+                      >
                         <span
-                          style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 600, color: patient.glasgow_score === null ? "rgba(255,255,255,0.18)" : undefined }}
-                          className={patient.glasgow_score !== null ? getGlasgowColor(patient.glasgow_score) : ""}
+                          style={{
+                            fontFamily: "ui-monospace, monospace",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color:
+                              patient.glasgow_score === null
+                                ? "rgba(255,255,255,0.18)"
+                                : undefined,
+                          }}
+                          className={
+                            patient.glasgow_score !== null
+                              ? getGlasgowColor(patient.glasgow_score)
+                              : ""
+                          }
                         >
-                          {patient.glasgow_score === null ? "—" : patient.glasgow_score}
+                          {patient.glasgow_score === null
+                            ? "—"
+                            : patient.glasgow_score}
                         </span>
                         {patient.glasgow_score !== null && (
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.22)", fontFamily: "ui-monospace, monospace" }}>/15</span>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "rgba(255,255,255,0.22)",
+                              fontFamily: "ui-monospace, monospace",
+                            }}
+                          >
+                            /15
+                          </span>
                         )}
                       </div>
                       <GlasgowSegments score={patient.glasgow_score} />
@@ -276,19 +408,34 @@ export default function PatientTable({ patients }: PatientTableProps) {
 
                   {/* Admitted */}
                   <td className="px-5 py-3.5">
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", fontFamily: "ui-monospace, monospace", letterSpacing: "0.02em" }}>
-                      {new Date(patient.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "rgba(255,255,255,0.28)",
+                        fontFamily: "ui-monospace, monospace",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {new Date(patient.created_at).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        },
+                      )}
                     </span>
                   </td>
 
                   {/* Delete */}
                   {user?.role === "doctor" && (
-                    <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
-                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <td
+                      className="px-5 py-3.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div
+                        style={{ display: "flex", justifyContent: "flex-end" }}
+                      >
                         <button
                           className="pt-delete"
                           onClick={(e) => handleDeleteClick(e, patient.id)}
@@ -319,7 +466,15 @@ export default function PatientTable({ patients }: PatientTableProps) {
         </table>
 
         {patients.length === 0 && (
-          <div style={{ padding: "64px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              padding: "64px 0",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
             <div
               style={{
                 width: 46,
@@ -335,7 +490,9 @@ export default function PatientTable({ patients }: PatientTableProps) {
             >
               <UsersIcon />
             </div>
-            <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>No patients found</p>
+            <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>
+              No patients found
+            </p>
           </div>
         )}
       </div>

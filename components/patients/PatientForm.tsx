@@ -14,28 +14,43 @@ interface PatientFormProps {
   patient?: Patient;
 }
 
+type PatientFormInput = z.input<typeof patientSchema>;
+
 interface FieldProps {
   label: string;
   error?: string;
+  hint?: string;
   children: React.ReactNode;
 }
 
-type PatientFormInput = z.input<typeof patientSchema>;
-
-function Field({ label, error, children }: FieldProps) {
+function Field({ label, error, hint, children }: FieldProps) {
   return (
-    <div>
-      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
-        {label}
-      </label>
+    <div className="pf-field">
+      <label className="pf-label">{label}</label>
       {children}
-      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+      {hint && !error && <p className="pf-hint">{hint}</p>}
+      {error && <p className="pf-error">{error}</p>}
     </div>
   );
 }
 
-const inputClass =
-  "w-full h-10 px-3 rounded-lg border border-gray-700 bg-gray-800 text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-600";
+function UnitInput({
+  unit,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { unit: string }) {
+  return (
+    <div className="pf-unit-wrap">
+      <input className="pf-input pf-unit-input" {...props} />
+      <span className="pf-unit">{unit}</span>
+    </div>
+  );
+}
+
+const GENDERS = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+] as const;
 
 export default function PatientForm({ onSuccess, patient }: PatientFormProps) {
   const queryClient = useQueryClient();
@@ -92,91 +107,90 @@ export default function PatientForm({ onSuccess, patient }: PatientFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5 space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="pf-form">
       <Field label="Full name" error={errors.full_name?.message}>
         <input
           {...register("full_name")}
           placeholder="Maria García López"
-          className={inputClass}
+          className="pf-input"
+          autoComplete="off"
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="pf-row">
         <Field label="Age" error={errors.age?.message}>
-          <input
-            {...register("age")}
-            type="number"
-            placeholder="45"
-            className={inputClass}
-          />
+          <UnitInput {...register("age")} type="number" placeholder="45" unit="yr" />
         </Field>
 
         <Field label="Gender" error={errors.gender?.message}>
-          <select {...register("gender")} className={inputClass}>
-            <option value="">Select...</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
+          <div className="pf-gender">
+            {GENDERS.map(({ value, label }) => (
+              <label key={value} className="pf-gender-option">
+                <input
+                  type="radio"
+                  value={value}
+                  {...register("gender")}
+                  className="sr-only"
+                />
+                <span className="pf-gender-label">{label}</span>
+              </label>
+            ))}
+          </div>
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Weight (kg)" error={errors.weight_kg?.message}>
-          <input
+      <div className="pf-row">
+        <Field label="Weight" error={errors.weight_kg?.message}>
+          <UnitInput
             {...register("weight_kg")}
             type="number"
             step="0.1"
             placeholder="70"
-            className={inputClass}
+            unit="kg"
           />
         </Field>
 
-        <Field label="Height (cm)" error={errors.height_cm?.message}>
-          <input
+        <Field label="Height" error={errors.height_cm?.message}>
+          <UnitInput
             {...register("height_cm")}
             type="number"
             placeholder="170"
-            className={inputClass}
+            unit="cm"
           />
         </Field>
       </div>
 
       <Field
-        label="Glasgow Coma Score (3–15)"
+        label="Glasgow Coma Score"
         error={errors.glasgow_score?.message}
+        hint="Range: 3 (severe) — 15 (normal)"
       >
         <input
           {...register("glasgow_score")}
           type="number"
           placeholder="15"
-          className={inputClass}
+          min={3}
+          max={15}
+          className="pf-input"
         />
       </Field>
 
       {isError && (
-        <p className="text-xs text-red-400 bg-red-950 border border-red-800 rounded-lg px-3 py-2">
+        <div className="pf-api-error">
           {isEdit
             ? "Failed to update patient. Please try again."
-            : "Failed to create patient. Please try again."}
-        </p>
+            : "Failed to admit patient. Please try again."}
+        </div>
       )}
 
-      <div className="flex gap-3 pt-2">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="flex-1 h-10 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
-        >
+      <button type="submit" disabled={isPending} className="pf-submit">
+        <span className="pf-submit-inner">
+          {isPending && <span className="pf-spinner" />}
           {isPending
-            ? isEdit
-              ? "Saving..."
-              : "Admitting..."
-            : isEdit
-              ? "Save changes"
-              : "Admit patient"}
-        </button>
-      </div>
+            ? isEdit ? "Saving..." : "Admitting..."
+            : isEdit ? "Save changes" : "Admit patient"}
+        </span>
+      </button>
     </form>
   );
 }

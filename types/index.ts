@@ -35,7 +35,7 @@ export interface InteractionResult {
   drug_a: string;
   drug_b: string;
   description: string;
-  severity: "High" | "Moderate" | "Low";
+  severity: "high" | "moderate" | "low";
 }
 
 export interface ChecklistItem {

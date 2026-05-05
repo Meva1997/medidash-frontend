@@ -141,7 +141,10 @@ export default function InteractionChecker() {
                         {r.drug_a} <span className="text-gray-500">×</span>{" "}
                         {r.drug_b}
                       </p>
-                      <Badge variant={r.severity}>{r.severity}</Badge>
+                      <Badge variant={r.severity}>
+                        {r.severity.charAt(0).toUpperCase() +
+                          r.severity.slice(1)}
+                      </Badge>
                     </div>
                     {r.description && (
                       <p className="text-sm text-gray-400">{r.description}</p>

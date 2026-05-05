@@ -1,26 +1,20 @@
-// components/ui/Badge.tsx
-
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: "High" | "Moderate" | "Low" | "Default";
+  variant?: "high" | "moderate" | "low" | "default";
   className?: string;
 }
 
-export function Badge({
-  children,
-  variant = "Default",
-  className = "",
-}: BadgeProps) {
-  const variants = {
-    Default: "bg-gray-800 text-gray-300 border-gray-700",
-    High: "bg-red-950 text-red-400 border-red-900",
-    Moderate: "bg-yellow-950 text-yellow-400 border-yellow-900",
-    Low: "bg-blue-950 text-blue-400 border-blue-900",
+export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
+  const variants: Record<string, string> = {
+    default:  "bg-gray-800/60 text-gray-400 border-white/10",
+    high:     "bg-red-500/10 text-red-400 border-red-500/20",
+    moderate: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    low:      "bg-blue-500/10 text-blue-400 border-blue-500/20",
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className}`}
     >
       {children}
     </span>
