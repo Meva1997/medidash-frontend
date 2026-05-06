@@ -26,6 +26,7 @@ MediDash is a clinical dashboard for medical staff (doctors/nurses). It uses **N
   - `/patients/[id]` — patient detail: clinical stats + inline surgical checklists
   - `/drugs` — drug interaction checker
   - `/checklists/[id]` — standalone checklist page (also embedded in patient detail)
+  - `/triage` — AI-assisted Manchester Triage System (MTS) multi-step form (nurses)
 
 `app/page.tsx` immediately redirects to `/login`.
 
@@ -50,6 +51,8 @@ All server communication goes through `lib/api.ts`. Feature-specific hooks in `h
 - `usePatientChecklists(patientId)`, `useCreateChecklist`, `useToggleChecklistItem`
 - `useDrugs`, `useAuth`
 
+Triage state is managed by **Zustand** (`store/triageStore.ts`) with `persist` middleware (localStorage key `medidash-triage-session`). No TanStack Query hooks — triage is a stateful multi-step form that submits once via `POST /triage`.
+
 `context/QueryProvider.tsx` configures the global `QueryClient` with `staleTime: 2 min` and `retry: 1`.
 
 ### Form validation
@@ -61,6 +64,33 @@ All server communication goes through `lib/api.ts`. Feature-specific hooks in `h
 Custom primitives live in `components/ui/` (Button, Card, Input, Badge). Feature components under `components/patients/`, `components/drugs/`, `components/checklists/`, and `components/layout/` consume them. The app is dark-only (`html` has `class="dark"`, body has `bg-gray-950`).
 
 `lib/utils.ts` provides: `cn` (class concatenation), `getBMIColor(category)`, `getGlasgowColor(score)`.
+
+### Triage module
+
+The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and `store/`. It implements the **Manchester Triage System (MTS)** as a 5-step guided form:
+
+| Step | Section | Key data |
+|------|---------|----------|
+| 1 | Patient | `fullName`, `birthDate`, `biologicalSex`, `arrivalTime` (auto) |
+| 2 | Chief complaint | free text + `MTSCategory` (AI-suggested, nurse-confirmed) |
+| 3 | Vitals | HR, RR, BP, temp, SpO₂, pain scale, Glasgow (ocular/verbal/motor) |
+| 4 | AI Assessment | MTS discriminators → `TriageColor` (AI recommended, nurse final) |
+| 5 | Outcome | `destination` (`waiting_room` / `census`), notes, badge |
+
+**State** — `store/triageStore.ts` (Zustand + `persist`). Selectors exported: `selectPatient`, `selectComplaint`, `selectVitals`, `selectAssessment`, `selectOutcome`, `selectCurrentStep`, `selectSubmit`.
+
+**Validation** — `store/triageSchemas.ts` (Zod schemas per step, `STEP_SCHEMAS[i]`). `store/triageValidators.ts` exposes `isStepValid(step, data)` and `areAllPreviousStepsValid(upToStep, data)`.
+
+**Types** — `types/TriageTypes.ts`: `TriageColor`, `MTS_COLOR_META`, `MTSCategory`, `MTS_CATEGORY_LABELS`, `BiologicalSex`, `PatientInfo`, `ChiefComplaint`, `Vitals`, `VITAL_RANGES`, `getVitalStatus`, `MTSDiscriminator`, `Assessment`, `Outcome`, `TriageFormData`, `INITIAL_FORM_DATA`, `AITriageSuggestRequest/Response`, `TriageSubmitRequest/Response`.
+
+**Components** — `components/triage/`:
+- `TriageStepper` — visual progress bar + step nodes (click to jump to reachable steps)
+- `StepNavigation` — Back / Continue / Submit with disabled state
+- `ElapsedTimer` — live HH:MM:SS since `arrivalTime`; color shifts amber at 10 min, red + pulse at 30 min
+- `SavedSessionModal` — shown on mount when localStorage has a partial session
+- `SubmitSuccessTriage` — post-submit success screen with triage ID
+
+Step content components (`StepPatientInfo`, `StepChiefComplaint`, etc.) are not yet built; their import stubs are commented out in `page.tsx`.
 
 ### Types
 
