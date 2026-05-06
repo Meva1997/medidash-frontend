@@ -29,6 +29,16 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: "/triage",
+    label: "Triage - AI",
+    icon: (
+      <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
+        <path d="M8 2h4v6h6v4h-6v6H8v-6H2V8h6z" />
+        <circle cx="16" cy="4" r="2.5" />
+      </svg>
+    ),
+  },
 ];
 
 function BrandLogo() {

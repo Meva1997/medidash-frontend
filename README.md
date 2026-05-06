@@ -75,6 +75,17 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 - 10 route-of-administration options (oral, IV, IM, subcutaneous, topical, inhalation, sublingual, rectal, ophthalmic, otic)
 - Nurses have read-only access to consultation history
 
+### AI-Assisted Triage (MTS)
+- 5-step guided triage form following the **Manchester Triage System**
+- Step 1 — patient identification (name, DOB, biological sex, auto-captured arrival time)
+- Step 2 — chief complaint (free text + AI-suggested MTS category, nurse confirms or overrides)
+- Step 3 — vital signs with inline range validation (normal / warning / critical) and Glasgow Coma Scale
+- Step 4 — MTS discriminators per category; AI recommends a triage color (`red` → `blue`); nurse sets the final color and must document any override
+- Step 5 — patient destination (`waiting_room` or admitted to census) + notes
+- Live elapsed timer since arrival (amber at 10 min, red + pulse at 30 min)
+- Session persistence in localStorage — unfinished triages are recoverable on next visit
+- Submits to `POST /triage`; success screen displays triage ID
+
 ### Drug Interaction Checker
 - Full-catalog drug search
 - Pairwise interaction detection across any combination
@@ -101,6 +112,7 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 | Forms | React Hook Form v7 + Zod v4 |
 | HTTP | Axios (interceptor-based auth) |
 | Auth State | React Context + js-cookie (SSR-safe) |
+| Triage State | Zustand v5 + persist middleware |
 
 ### Backend
 | | |
@@ -148,6 +160,8 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 | GET | `/consultations/{consultation_id}/treatments` | JWT | any |
 | PATCH | `/consultations/{consultation_id}/treatments/{treatment_id}/prescriptions/{prescription_id}` | JWT | doctor |
 | GET | `/consultations/{consultation_id}/treatments/{treatment_id}/prescriptions/{prescription_id}/history` | JWT | any |
+| POST | `/triage/ai-suggest` | JWT | any |
+| POST | `/triage` | JWT | any |
 
 *Nurses restricted to `weight_kg`, `height_cm`, and `glasgow_score` fields.
 
@@ -211,14 +225,20 @@ medidash-frontend/
 │   └── (dashboard)/           # Protected layout (Sidebar only)
 │       ├── patients/          # Patient census + admit modal
 │       ├── patients/[id]/     # Patient detail: stats + consultations + checklists
-│       └── drugs/             # Drug interaction checker
+│       ├── drugs/             # Drug interaction checker
+│       └── triage/            # AI-assisted MTS triage (5-step form)
 ├── components/
 │   ├── ui/                    # Button, Badge, Card, Input, ConfirmDialog, DemoCredentials
 │   ├── layout/                # Sidebar (role-aware nav, full name display, logout)
 │   ├── patients/              # PatientTable, PatientForm, PatientProfile
 │   ├── consultations/         # ConsultationsPanel, PrescriptionItem (with edit history)
 │   ├── drugs/                 # InteractionChecker
-│   └── checklists/            # ChecklistPanel (embedded in PatientProfile)
+│   ├── checklists/            # ChecklistPanel (embedded in PatientProfile)
+│   └── triage/                # TriageStepper, StepNavigation, ElapsedTimer, SavedSessionModal, SubmitSuccessTriage
+├── store/                     # Zustand stores
+│   ├── triageStore.ts         # Triage form state + submit + persist
+│   ├── triageSchemas.ts       # Zod schemas per step (STEP_SCHEMAS)
+│   └── triageValidators.ts    # isStepValid, areAllPreviousStepsValid
 ├── hooks/                     # TanStack Query hooks
 │   ├── usePatients.ts
 │   ├── useConsultations.ts    # includes useAddPrescription, useUpdateTreatment, usePrescriptionHistory
@@ -231,7 +251,9 @@ medidash-frontend/
 │   └── utils.ts               # cn, getBMIColor, getGlasgowColor
 ├── context/                   # AuthContext, QueryProvider
 ├── proxy.ts                   # Route guard
-└── types/                     # Shared TypeScript interfaces
+└── types/
+    ├── index.ts               # Shared TypeScript interfaces (Patient, Consultation, etc.)
+    └── TriageTypes.ts         # MTS triage types, constants, and API shapes
 ```
 
 ---
