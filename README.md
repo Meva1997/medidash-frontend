@@ -76,7 +76,7 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 - Nurses have read-only access to consultation history
 
 ### AI-Assisted Triage (MTS)
-- 5-step guided triage form following the **Manchester Triage System**
+- 5-step guided triage form following the **Manchester Triage System** (fully implemented)
 - Step 1 — patient identification (name, DOB, biological sex, auto-captured arrival time)
 - Step 2 — chief complaint (free text + AI-suggested MTS category, nurse confirms or overrides)
 - Step 3 — vital signs with inline range validation (normal / warning / critical) and Glasgow Coma Scale
@@ -84,6 +84,7 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 - Step 5 — patient destination (`waiting_room` or admitted to census) + notes
 - Live elapsed timer since arrival (amber at 10 min, red + pulse at 30 min)
 - Session persistence in localStorage — unfinished triages are recoverable on next visit
+- Leave-triage guard: clicking away during an active session triggers a confirmation dialog; session is preserved
 - Submits to `POST /triage`; success screen displays triage ID
 
 ### Drug Interaction Checker
@@ -183,7 +184,7 @@ git clone https://github.com/Meva1997/medidash-frontend
 cd medidash-frontend
 npm install
 cp .env.example .env.local
-npm run dev
+npm run dev   # runs Next.js with Turbopack
 ```
 
 **.env.local**
@@ -226,7 +227,7 @@ medidash-frontend/
 │       ├── patients/          # Patient census + admit modal
 │       ├── patients/[id]/     # Patient detail: stats + consultations + checklists
 │       ├── drugs/             # Drug interaction checker
-│       └── triage/            # AI-assisted MTS triage (5-step form)
+│       └── triage/            # AI-assisted MTS triage (5-step form, fully implemented)
 ├── components/
 │   ├── ui/                    # Button, Badge, Card, Input, ConfirmDialog, DemoCredentials
 │   ├── layout/                # Sidebar (role-aware nav, full name display, logout)
@@ -235,6 +236,7 @@ medidash-frontend/
 │   ├── drugs/                 # InteractionChecker
 │   ├── checklists/            # ChecklistPanel (embedded in PatientProfile)
 │   └── triage/                # TriageStepper, StepNavigation, ElapsedTimer, SavedSessionModal, SubmitSuccessTriage
+│       └── steps/             # StepPatientInfo, StepChiefComplaint, StepVitals, StepAIAssessment, StepOutcome
 ├── store/                     # Zustand stores
 │   ├── triageStore.ts         # Triage form state + submit + persist
 │   ├── triageSchemas.ts       # Zod schemas per step (STEP_SCHEMAS)

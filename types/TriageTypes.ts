@@ -64,7 +64,7 @@ export type MTSCategory =
 
 export const MTS_CATEGORY_LABELS: Record<MTSCategory, string> = {
   chest_pain: "Chest Pain",
-  breathing_difficulty: "Breathinf difficulty",
+  breathing_difficulty: "Breathing difficulty",
   abdominal_pain: "Abdominal pain",
   trauma: "Trauma / injury",
   headache: "Headache",
