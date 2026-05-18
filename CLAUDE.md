@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # start dev server on localhost:3000 (Turbopack, 8 GB heap)
-npm run build    # production build
-npm run lint     # ESLint
+pnpm dev      # start dev server on localhost:3000 (Turbopack, 8 GB heap)
+pnpm build    # production build
+pnpm lint     # ESLint
 ```
 
 No test suite is configured.
