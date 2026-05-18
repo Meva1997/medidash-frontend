@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -20,6 +20,10 @@
     "react-hook-form": "^7.73.1",
     "zod": "^4.3.6",
     "zustand": "^5.0.13"
+  },
+  "packageManager": "pnpm@10.24.0",
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp", "unrs-resolver"]
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

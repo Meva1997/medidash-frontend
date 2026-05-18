@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # start dev server on localhost:3000
-npm run build    # production build
-npm run lint     # ESLint
+pnpm dev      # start dev server on localhost:3000 (Turbopack, 8 GB heap)
+pnpm build    # production build
+pnpm lint     # ESLint
 ```
 
 No test suite is configured.
@@ -77,7 +77,7 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 | 4 | AI Assessment | MTS discriminators → `TriageColor` (AI recommended, nurse final) |
 | 5 | Outcome | `destination` (`waiting_room` / `census`), notes, badge |
 
-**State** — `store/triageStore.ts` (Zustand + `persist`). Selectors exported: `selectPatient`, `selectComplaint`, `selectVitals`, `selectAssessment`, `selectOutcome`, `selectCurrentStep`, `selectSubmit`.
+**State** — `store/triageStore.ts` (Zustand + `persist`). Selectors exported: `selectPatient`, `selectComplaint`, `selectVitals`, `selectAssessment`, `selectOutcome`, `selectCurrentStep`, `selectSubmit`. Actions include `revealSavedSession()` (called on mount to reopen the saved-session modal when a partial session exists).
 
 **Validation** — `store/triageSchemas.ts` (Zod schemas per step, `STEP_SCHEMAS[i]`). `store/triageValidators.ts` exposes `isStepValid(step, data)` and `areAllPreviousStepsValid(upToStep, data)`.
 
@@ -90,7 +90,14 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 - `SavedSessionModal` — shown on mount when localStorage has a partial session
 - `SubmitSuccessTriage` — post-submit success screen with triage ID
 
-Step content components (`StepPatientInfo`, `StepChiefComplaint`, etc.) are not yet built; their import stubs are commented out in `page.tsx`.
+Step content components live in `components/triage/steps/` (all fully implemented):
+- `StepPatientInfo` — name, DOB, biological sex, auto-set `arrivalTime`
+- `StepChiefComplaint` — free text + MTS category selector (AI-suggested or manual)
+- `StepVitals` — HR, RR, BP, temp, SpO₂, pain, Glasgow (ocular/verbal/motor) with inline range badges
+- `StepAIAssessment` — MTS discriminator checklist + triage color picker (AI recommended, nurse final + override note)
+- `StepOutcome` — destination (`waiting_room` / `census`) + final notes
+
+`page.tsx` also wires a **leave-triage guard**: while `patient.fullName` is non-empty, any anchor click outside `/triage` is intercepted and a `ConfirmDialog` is shown before navigating. Uses `useSyncExternalStore` for hydration-safe `canAdvance`.
 
 ### Types
 

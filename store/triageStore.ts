@@ -65,6 +65,7 @@ interface TriageStore {
   //? Utilities
   resetTriage: () => void;
   acknowledgeSavedSession: () => void;
+  revealSavedSession: () => void;
 }
 
 // ─────────────────────────────────────────────
@@ -260,6 +261,13 @@ export const useTriageStore = create<TriageStore>()(
         }),
 
       acknowledgeSavedSession: () => set({ hasSavedSession: false }),
+
+      revealSavedSession: () => {
+        const { formData, submit } = get();
+        if (hasMeaningfulData(formData) && submit.status !== "success") {
+          set({ hasSavedSession: true });
+        }
+      },
     }),
 
     {
