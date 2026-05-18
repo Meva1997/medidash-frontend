@@ -54,22 +54,9 @@ export function ElapsedTimer({ arrivalTime, className }: ElapsedTimerProps) {
         "flex items-center gap-2 rounded-lg px-3 py-1.5",
         "border font-mono text-sm font-semibold tracking-widest",
         "transition-colors duration-500",
-        // Normal — slate
-        !isUrgent && !isCritical && "border-slate-200 dark:border-slate-700",
-        "bg-slate-50 dark:bg-slate-800/50",
-        "text-slate-600 dark:text-slate-300",
-
-        // Urgent — amber
-        isUrgent && !isCritical && "border-amber-300 dark:border-amber-700",
-        "bg-amber-50 dark:bg-amber-900/30",
-        "text-amber-700 dark:text-amber-400",
-
-        // Critical — red, with pulse
-        isCritical && "border-red-300 dark:border-red-700",
-        "bg-red-50 dark:bg-red-900/30",
-        "text-red-600 dark:text-red-400",
-        "animate-pulse",
-
+        !isUrgent && !isCritical && "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300",
+        isUrgent && !isCritical && "border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400",
+        isCritical && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 animate-pulse",
         className,
       )}
       aria-label={`Time elapsed since patient arrival: ${display}`}
