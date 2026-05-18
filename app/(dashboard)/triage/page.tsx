@@ -7,6 +7,7 @@ import {
   selectPatient,
   selectSubmit,
 } from "@/store/triageStore";
+import { isStepValid } from "@/store/triageValidators";
 import SavedSessionModal from "@/components/triage/SavedSessionModal";
 import SubmitSuccessTriage from "@/components/triage/SubmitSuccesTriage";
 import { ElapsedTimer } from "@/components/triage/ElapsedTimer";
@@ -36,7 +37,9 @@ export default function TriagePage() {
   const patient = useTriageStore(selectPatient);
   const submit = useTriageStore(selectSubmit);
   const hasSavedSession = useTriageStore((s) => s.hasSavedSession);
-  const isCurrentStepValid = useTriageStore((s) => s.isCurrentStepValid);
+  const canAdvanceFromStore = useTriageStore((s) =>
+    isStepValid(s.currentStep, s.formData),
+  );
   const goNext = useTriageStore((s) => s.goNext);
   const goPrev = useTriageStore((s) => s.goPrev);
   const submitTriage = useTriageStore((s) => s.submitTriage);
@@ -222,7 +225,7 @@ export default function TriagePage() {
             <div className="px-6 pb-6 md:px-8 md:pb-8">
               <StepNavigation
                 currentStep={currentStep}
-                canAdvance={mounted && isCurrentStepValid()}
+                canAdvance={mounted && canAdvanceFromStore}
                 isSubmitting={submit.status === "loading"}
                 onNext={handleNext}
                 onPrev={handlePrev}
