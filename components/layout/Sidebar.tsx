@@ -39,6 +39,16 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: "/waiting-room",
+    label: "Waiting room",
+    icon: (
+      <svg fill="currentColor" className="w-4 h-4" viewBox="0 0 20 20">
+        <circle cx="10" cy="2.5" r="1.5" />
+        <path d="M7 6.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1V14l2.4 3.2a1 1 0 1 1-1.6 1.2L10 16.25l-1.8 2.4a1 1 0 1 1-1.6-1.2L9 14v-3.5H8a1 1 0 0 1-1-1z" />
+      </svg>
+    ),
+  },
 ];
 
 function BrandLogo() {
