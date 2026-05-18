@@ -190,11 +190,20 @@ export default function LoginPage() {
             </button>
 
             <div className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-2.5 mt-2">
-              <svg className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              <svg
+                fill="currentColor"
+                className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5m0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
+                  clipRule="evenodd"
+                />
               </svg>
               <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                The backend runs on a free Render instance and may take up to 30 seconds to wake up on the first request.
+                The backend runs on a free Render instance and may take up to 30
+                seconds to wake up on the first request.
               </p>
             </div>
           </form>
