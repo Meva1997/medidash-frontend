@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 
-const DEMO_EMAIL = "user@example.com";
-const DEMO_PASSWORD = "String97";
+const ACCOUNTS = [
+  { role: "Doctor", email: "user@example.com", password: "String97" },
+  { role: "Nurse", email: "nurse@email.com", password: "String97" },
+] as const;
+
+type CopiedKey = `${number}-email` | `${number}-password`;
 
 export function DemoCredentials() {
-  const [copiedField, setCopiedField] = useState<"email" | "password" | null>(null);
+  const [copiedKey, setCopiedKey] = useState<CopiedKey | null>(null);
 
-  const copy = (field: "email" | "password", value: string) => {
+  const copy = (key: CopiedKey, value: string) => {
     navigator.clipboard.writeText(value);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(null), 1500);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 1500);
   };
 
   return (
@@ -19,19 +23,26 @@ export function DemoCredentials() {
       <p className="text-xs font-medium text-teal-400 mb-2.5 uppercase tracking-wide">
         Demo credentials
       </p>
-      <div className="space-y-1.5">
-        <CredentialRow
-          label="Email"
-          value={DEMO_EMAIL}
-          copied={copiedField === "email"}
-          onCopy={() => copy("email", DEMO_EMAIL)}
-        />
-        <CredentialRow
-          label="Password"
-          value={DEMO_PASSWORD}
-          copied={copiedField === "password"}
-          onCopy={() => copy("password", DEMO_PASSWORD)}
-        />
+      <div className="space-y-3">
+        {ACCOUNTS.map((account, i) => (
+          <div key={account.role}>
+            <p className="text-xs font-medium text-slate-500 mb-1">{account.role}</p>
+            <div className="space-y-1.5">
+              <CredentialRow
+                label="Email"
+                value={account.email}
+                copied={copiedKey === `${i}-email`}
+                onCopy={() => copy(`${i}-email` as CopiedKey, account.email)}
+              />
+              <CredentialRow
+                label="Password"
+                value={account.password}
+                copied={copiedKey === `${i}-password`}
+                onCopy={() => copy(`${i}-password` as CopiedKey, account.password)}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
