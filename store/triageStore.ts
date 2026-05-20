@@ -276,10 +276,15 @@ export const useTriageStore = create<TriageStore>()(
       partialize: (state) => ({
         currentStep: state.currentStep,
         formData: state.formData,
+        submit: state.submit,
       }),
 
       onRehydrateStorage: () => (state) => {
-        if (state && hasMeaningfulData(state.formData)) {
+        if (
+          state &&
+          hasMeaningfulData(state.formData) &&
+          state.submit?.status !== "success"
+        ) {
           state.hasSavedSession = true;
         }
       },

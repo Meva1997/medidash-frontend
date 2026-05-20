@@ -81,7 +81,7 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 
 **Validation** — `store/triageSchemas.ts` (Zod schemas per step, `STEP_SCHEMAS[i]`). `store/triageValidators.ts` exposes `isStepValid(step, data)` and `areAllPreviousStepsValid(upToStep, data)`.
 
-**AI integration** — `lib/triageAI.ts` exposes `fetchTriageAssessment(payload)`, a thin wrapper over `POST /triage/ai-suggest`. Called automatically when the nurse advances from step 2 (vitals) to step 3 (assessment); the Continue button is disabled while the request is in flight. The result populates `aiRecommendedColor`, `aiConfidence`, and `aiRationale` in the assessment slice.
+**AI integration** — `lib/triageAI.ts` exposes `fetchTriageAssessment(payload)`, a thin wrapper over `POST /triage/ai-suggest`. Called automatically when the nurse advances from step 2 (vitals) to step 3 (assessment); the Continue button is disabled while the request is in flight. The result populates `aiRecommendedColor`, `aiConfidence`, `aiRationale`, and `aiSuggestedDiscriminators` in the assessment slice. `StepAIAssessment` uses `aiSuggestedDiscriminators` when available; falls back to `DISCRIMINATORS_BY_CATEGORY[mtsCategory]` → `DISCRIMINATORS_BY_CATEGORY.default`.
 
 **Types** — `types/TriageTypes.ts`: `TriageColor`, `MTS_COLOR_META`, `MTSCategory`, `MTS_CATEGORY_LABELS`, `BiologicalSex`, `PatientInfo`, `ChiefComplaint`, `Vitals` (includes `weightKg`, `heightCm`), `VITAL_RANGES`, `getVitalStatus`, `MTSDiscriminator`, `Assessment`, `Outcome`, `TriageFormData`, `INITIAL_FORM_DATA`, `AITriageSuggestRequest/Response`, `TriageSubmitRequest/Response`.
 

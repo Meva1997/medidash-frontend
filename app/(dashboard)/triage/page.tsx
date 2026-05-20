@@ -70,7 +70,7 @@ export default function TriagePage() {
 
   // Intercept sidebar/link clicks when a triage session is in progress.
   useEffect(() => {
-    if (!patient.fullName.trim()) return;
+    if (!patient.fullName.trim() || submit.status === "success") return;
 
     const handleAnchorClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest("a[href]");
@@ -84,7 +84,7 @@ export default function TriagePage() {
 
     document.addEventListener("click", handleAnchorClick, true);
     return () => document.removeEventListener("click", handleAnchorClick, true);
-  }, [patient.fullName]);
+  }, [patient.fullName, submit.status]);
 
   // Defer store-dependent rendering until after localStorage rehydration.
   // useSyncExternalStore is the React-canonical way to express "false on server,
@@ -134,6 +134,7 @@ export default function TriagePage() {
           aiRecommendedColor: result.recommendedColor,
           aiConfidence: result.confidence,
           aiRationale: result.rationale,
+          aiSuggestedDiscriminators: result.suggestedDiscriminators ?? null,
         });
       } catch (err) {
         console.error("AI triage error:", err);

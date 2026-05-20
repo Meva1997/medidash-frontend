@@ -75,17 +75,56 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 - 10 route-of-administration options (oral, IV, IM, subcutaneous, topical, inhalation, sublingual, rectal, ophthalmic, otic)
 - Nurses have read-only access to consultation history
 
-### AI-Assisted Triage (MTS)
-- 5-step guided triage form following the **Manchester Triage System** (fully implemented)
-- Step 1 — patient identification (name, DOB, biological sex, auto-captured arrival time)
-- Step 2 — chief complaint (free text + AI-suggested MTS category, nurse confirms or overrides)
-- Step 3 — vital signs with inline range validation (normal / warning / critical), Glasgow Coma Scale, and anthropometry (weight / height)
-- Step 4 — MTS discriminators per category; AI recommends a triage color (`red` → `blue`) automatically on step 2 → 3 transition; nurse sets the final color and must document any override
-- Step 5 — patient destination (`waiting_room` or admitted to census) + notes
-- Live elapsed timer since arrival (amber at 10 min, red + pulse at 30 min)
-- Session persistence in localStorage — unfinished triages are recoverable on next visit
-- Leave-triage guard: clicking away during an active session triggers a confirmation dialog; session is preserved
-- Submits to `POST /triage`; success screen displays triage ID
+### AI-Assisted Triage (MTS) — Main Feature
+
+MediDash implements the **Manchester Triage System (MTS)** as a fully guided 5-step AI-assisted form. The AI does two things: it suggests the MTS category from the chief complaint (step 2), and it recommends a triage color + discriminator checklist once vitals are complete (step 3→4 transition). Nurses always have the final word.
+
+#### Full flow
+
+```
+Step 1 — Patient ID
+  Name · DOB · biological sex · arrival time (auto)
+  └─ Live elapsed timer starts (amber ≥ 10 min / red + pulse ≥ 30 min)
+
+Step 2 — Chief Complaint
+  Free-text description
+  └─ AI suggests the MTS category (e.g. "chest_pain", "breathing_difficulty")
+     Nurse confirms or manually overrides the category
+
+Step 3 — Vital Signs
+  HR · RR · Systolic/Diastolic BP · Temperature · SpO₂ · Pain scale (0-10)
+  Glasgow Coma Scale (ocular / verbal / motor — totalled automatically)
+  Anthropometry: weight (kg) · height (cm)
+  Each field shows a live badge: normal / warning / critical
+
+  ─── Continue button ───────────────────────────────────────────
+  POST /triage/ai-suggest fires automatically with:
+    complaint text + MTS category + all vitals + patient age & sex
+  Response returns:
+    · recommendedColor  (red / orange / yellow / green / blue)
+    · confidence        (0–1)
+    · rationale         (natural-language explanation)
+    · suggestedDiscriminators  (list of MTS yes/no questions for this case)
+  ───────────────────────────────────────────────────────────────
+
+Step 4 — AI Assessment
+  AI recommendation banner (color + confidence % + rationale)
+  Discriminator checklist — questions from the AI response if available,
+    otherwise falls back to static MTS defaults per category
+  Nurse answers each yes/no discriminator
+  Nurse selects the FINAL triage color (pre-filled with AI suggestion)
+  If nurse overrides the AI color → override reason field is required
+
+Step 5 — Outcome
+  Destination: waiting room or admitted to census
+  Free-text notes
+  Submit → POST /triage → success screen with triage ID + "Go to patients" shortcut
+```
+
+#### Session & navigation
+- Triage state persisted in `localStorage` (Zustand + `persist`) — unfinished sessions are recoverable on return
+- Leave-triage guard: any link click during an active session triggers a `ConfirmDialog`; guard is automatically lifted after successful submission
+- Success screen bypasses the guard so "Go to patients" navigates immediately
 
 ### Drug Interaction Checker
 - Full-catalog drug search

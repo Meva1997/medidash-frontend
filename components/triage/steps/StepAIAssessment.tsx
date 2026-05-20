@@ -4,8 +4,6 @@ import {
   useTriageStore,
   selectAssessment,
   selectComplaint,
-  selectVitals,
-  selectPatient,
 } from "@/store/triageStore";
 import { cn } from "@/lib/utils";
 import {
@@ -241,6 +239,9 @@ export default function StepAIAssessment() {
   const updateAssessment = useTriageStore((s) => s.updateAssesment);
 
   const discriminators =
+    (assessment.aiSuggestedDiscriminators?.length
+      ? assessment.aiSuggestedDiscriminators
+      : null) ??
     DISCRIMINATORS_BY_CATEGORY[complaint.mtsCategory ?? ""] ??
     DISCRIMINATORS_BY_CATEGORY.default;
 
