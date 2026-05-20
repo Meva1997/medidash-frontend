@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev      # start dev server on localhost:3000 (Turbopack, 8 GB heap)
+pnpm dev      # start dev server on localhost:3000 (Turbopack, 3 GB heap)
 pnpm build    # production build
 pnpm lint     # ESLint
 ```
@@ -73,7 +73,7 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 |------|---------|----------|
 | 1 | Patient | `fullName`, `birthDate`, `biologicalSex`, `arrivalTime` (auto) |
 | 2 | Chief complaint | free text + `MTSCategory` (AI-suggested, nurse-confirmed) |
-| 3 | Vitals | HR, RR, BP, temp, SpO₂, pain scale, Glasgow (ocular/verbal/motor) |
+| 3 | Vitals | HR, RR, BP, temp, SpO₂, pain scale, Glasgow (ocular/verbal/motor), weight (kg), height (cm) |
 | 4 | AI Assessment | MTS discriminators → `TriageColor` (AI recommended, nurse final) |
 | 5 | Outcome | `destination` (`waiting_room` / `census`), notes, badge |
 
@@ -81,7 +81,9 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 
 **Validation** — `store/triageSchemas.ts` (Zod schemas per step, `STEP_SCHEMAS[i]`). `store/triageValidators.ts` exposes `isStepValid(step, data)` and `areAllPreviousStepsValid(upToStep, data)`.
 
-**Types** — `types/TriageTypes.ts`: `TriageColor`, `MTS_COLOR_META`, `MTSCategory`, `MTS_CATEGORY_LABELS`, `BiologicalSex`, `PatientInfo`, `ChiefComplaint`, `Vitals`, `VITAL_RANGES`, `getVitalStatus`, `MTSDiscriminator`, `Assessment`, `Outcome`, `TriageFormData`, `INITIAL_FORM_DATA`, `AITriageSuggestRequest/Response`, `TriageSubmitRequest/Response`.
+**AI integration** — `lib/triageAI.ts` exposes `fetchTriageAssessment(payload)`, a thin wrapper over `POST /triage/ai-suggest`. Called automatically when the nurse advances from step 2 (vitals) to step 3 (assessment); the Continue button is disabled while the request is in flight. The result populates `aiRecommendedColor`, `aiConfidence`, and `aiRationale` in the assessment slice.
+
+**Types** — `types/TriageTypes.ts`: `TriageColor`, `MTS_COLOR_META`, `MTSCategory`, `MTS_CATEGORY_LABELS`, `BiologicalSex`, `PatientInfo`, `ChiefComplaint`, `Vitals` (includes `weightKg`, `heightCm`), `VITAL_RANGES`, `getVitalStatus`, `MTSDiscriminator`, `Assessment`, `Outcome`, `TriageFormData`, `INITIAL_FORM_DATA`, `AITriageSuggestRequest/Response`, `TriageSubmitRequest/Response`.
 
 **Components** — `components/triage/`:
 - `TriageStepper` — visual progress bar + step nodes (click to jump to reachable steps)
@@ -93,9 +95,9 @@ The triage feature lives in `app/(dashboard)/triage/`, `components/triage/`, and
 Step content components live in `components/triage/steps/` (all fully implemented):
 - `StepPatientInfo` — name, DOB, biological sex, auto-set `arrivalTime`
 - `StepChiefComplaint` — free text + MTS category selector (AI-suggested or manual)
-- `StepVitals` — HR, RR, BP, temp, SpO₂, pain, Glasgow (ocular/verbal/motor) with inline range badges
+- `StepVitals` — HR, RR, BP, temp, SpO₂, pain, Glasgow (ocular/verbal/motor), weight/height (Anthropometry section) with inline range badges
 - `StepAIAssessment` — MTS discriminator checklist + triage color picker (AI recommended, nurse final + override note)
-- `StepOutcome` — destination (`waiting_room` / `census`) + final notes
+- `StepOutcome` — destination (`waiting_room` / `census`) + final notes (no room assignment required)
 
 `page.tsx` also wires a **leave-triage guard**: while `patient.fullName` is non-empty, any anchor click outside `/triage` is intercepted and a `ConfirmDialog` is shown before navigating. Uses `useSyncExternalStore` for hydration-safe `canAdvance`.
 
