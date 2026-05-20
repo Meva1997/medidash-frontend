@@ -186,6 +186,7 @@ export interface Assessment {
   aiRecommendedColor: TriageColor | null;
   aiConfidence: number | null; // 0–1
   aiRationale: string | null; // natural language rationale
+  aiSuggestedDiscriminators: MTSDiscriminator[] | null;
   finalColor: TriageColor | null; // nurse's final decision
   nurseOverride: boolean; // true if it differs from the AI suggestion
   nurseOverrideReason: string; // required if nurseOverride === true
@@ -248,6 +249,7 @@ export const INITIAL_FORM_DATA: TriageFormData = {
     aiRecommendedColor: null,
     aiConfidence: null,
     aiRationale: null,
+    aiSuggestedDiscriminators: null,
     finalColor: null,
     nurseOverride: false,
     nurseOverrideReason: "",
