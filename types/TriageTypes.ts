@@ -118,6 +118,8 @@ export interface Vitals {
   spO2: number | null; // %
   glucoseCapillary: number | null; // mg/dL — optional
   painScale: number | null; // 0–10
+  weightKg: number | null;
+  heightCm: number | null;
   glasgowOcular: 1 | 2 | 3 | 4 | null;
   glasgowVerbal: 1 | 2 | 3 | 4 | 5 | null;
   glasgowMotor: 1 | 2 | 3 | 4 | 5 | 6 | null;
@@ -147,6 +149,8 @@ export const VITAL_RANGES: Record<
   spO2: { min: 95, max: 100, criticalMin: 90 },
   glucoseCapillary: { min: 70, max: 140, criticalMin: 50, criticalMax: 300 },
   painScale: { min: 0, max: 10 },
+  weightKg: { min: 3, max: 300, criticalMin: 1, criticalMax: 500 },
+  heightCm: { min: 30, max: 250 },
 };
 
 export type VitalStatus = "normal" | "warning" | "critical";
@@ -195,7 +199,6 @@ export type PatientDestination = "waiting_room" | "census";
 
 export interface Outcome {
   destination: PatientDestination | null;
-  censusPatientId: string | null; // only if destination === 'census'
   notes: string;
   badgePrinted: boolean;
 }
@@ -234,6 +237,8 @@ export const INITIAL_FORM_DATA: TriageFormData = {
     spO2: null,
     glucoseCapillary: null,
     painScale: null,
+    weightKg: null,
+    heightCm: null,
     glasgowOcular: null,
     glasgowVerbal: null,
     glasgowMotor: null,
@@ -249,7 +254,6 @@ export const INITIAL_FORM_DATA: TriageFormData = {
   },
   outcome: {
     destination: null,
-    censusPatientId: null,
     notes: "",
     badgePrinted: false,
   },
@@ -292,7 +296,6 @@ export interface TriageSubmitRequest {
   nurseOverrideReason: string;
   aiRecommendedColor: TriageColor | null;
   destination: PatientDestination;
-  censusPatientId: string | null;
   notes: string;
 }
 

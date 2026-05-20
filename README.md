@@ -79,8 +79,8 @@ The project goes well beyond a generic CRUD app: it implements a versioned presc
 - 5-step guided triage form following the **Manchester Triage System** (fully implemented)
 - Step 1 — patient identification (name, DOB, biological sex, auto-captured arrival time)
 - Step 2 — chief complaint (free text + AI-suggested MTS category, nurse confirms or overrides)
-- Step 3 — vital signs with inline range validation (normal / warning / critical) and Glasgow Coma Scale
-- Step 4 — MTS discriminators per category; AI recommends a triage color (`red` → `blue`); nurse sets the final color and must document any override
+- Step 3 — vital signs with inline range validation (normal / warning / critical), Glasgow Coma Scale, and anthropometry (weight / height)
+- Step 4 — MTS discriminators per category; AI recommends a triage color (`red` → `blue`) automatically on step 2 → 3 transition; nurse sets the final color and must document any override
 - Step 5 — patient destination (`waiting_room` or admitted to census) + notes
 - Live elapsed timer since arrival (amber at 10 min, red + pulse at 30 min)
 - Session persistence in localStorage — unfinished triages are recoverable on next visit
@@ -182,9 +182,9 @@ Full interactive docs: [medidash-backend.onrender.com/docs](https://medidash-bac
 ```bash
 git clone https://github.com/Meva1997/medidash-frontend
 cd medidash-frontend
-npm install
+pnpm install
 cp .env.example .env.local
-npm run dev   # runs Next.js with Turbopack
+pnpm dev   # runs Next.js with Turbopack
 ```
 
 **.env.local**
@@ -249,6 +249,7 @@ medidash-frontend/
 │   └── useRegister.ts         # registration mutation
 ├── lib/
 │   ├── api.ts                 # Axios instance (auto-redirect on 401)
+│   ├── triageAI.ts            # fetchTriageAssessment — POST /triage/ai-suggest wrapper
 │   ├── schemas/               # Zod schemas (patient.schema.ts)
 │   └── utils.ts               # cn, getBMIColor, getGlasgowColor
 ├── context/                   # AuthContext, QueryProvider

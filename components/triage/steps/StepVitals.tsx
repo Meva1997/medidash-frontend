@@ -290,6 +290,34 @@ export default function StepVitals() {
         </div>
       </section>
 
+      {/* ── Anthropometry ── */}
+      <section>
+        <h3 className="mb-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          Anthropometry
+        </h3>
+        <div className="grid grid-cols-2 gap-3">
+          <VitalInput
+            id="weightKg"
+            label="Weight"
+            unit="kg"
+            field="weightKg"
+            value={vitals.weightKg}
+            placeholder="70"
+            step={0.1}
+            onChange={(v) => updateVitals({ weightKg: v })}
+          />
+          <VitalInput
+            id="heightCm"
+            label="Height"
+            unit="cm"
+            field="heightCm"
+            value={vitals.heightCm}
+            placeholder="170"
+            onChange={(v) => updateVitals({ heightCm: v })}
+          />
+        </div>
+      </section>
+
       {/* ── Respiratory & Temperature ── */}
       <section>
         <h3 className="mb-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">

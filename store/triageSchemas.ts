@@ -32,6 +32,8 @@ export const VitalsSchema = z.object({
   spO2: z.number({ message: "Required" }).min(0).max(100),
   painScale: z.number({ message: "Required" }).min(0).max(10),
   glucoseCapillary: z.number().positive().nullable(),
+  weightKg: z.number({ message: "Required" }).positive(),
+  heightCm: z.number({ message: "Required" }).positive(),
   glasgowOcular: z.number().nullable(),
   glasgowVerbal: z.number().nullable(),
   glasgowMotor: z.number().nullable(),
@@ -52,19 +54,13 @@ export const AssessmentSchema = z
     path: ["nurseOverrideReason"],
   });
 
-export const OutcomeSchema = z
-  .object({
-    destination: z.enum(["waiting_room", "census"], {
-      message: "Select an option",
-    }),
-    censusPatientId: z.string().nullable(),
-    notes: z.string(),
-    badgePrinted: z.boolean(),
-  })
-  .refine((d) => d.destination !== "census" || d.censusPatientId !== null, {
-    message: "Asign the patient to a room",
-    path: ["censusPatientId"],
-  });
+export const OutcomeSchema = z.object({
+  destination: z.enum(["waiting_room", "census"], {
+    message: "Select an option",
+  }),
+  notes: z.string(),
+  badgePrinted: z.boolean(),
+});
 
 // Los schemas en orden de paso — el índice es el número de paso
 export const STEP_SCHEMAS = [
