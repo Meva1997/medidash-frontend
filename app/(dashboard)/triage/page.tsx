@@ -6,6 +6,8 @@ import {
   selectCurrentStep,
   selectPatient,
   selectSubmit,
+  selectVitals,
+  selectComplaint,
 } from "@/store/triageStore";
 import { isStepValid } from "@/store/triageValidators";
 import SavedSessionModal from "@/components/triage/SavedSessionModal";
@@ -14,6 +16,7 @@ import { ElapsedTimer } from "@/components/triage/ElapsedTimer";
 import { TriageStepper } from "@/components/triage/TriageStepper";
 import { StepNavigation } from "@/components/triage/StepNavigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { fetchTriageAssessment } from "@/lib/triageAI";
 
 // Steps — lazy placeholders until each is built
 // Replace each with the real component as you build them
@@ -48,6 +51,10 @@ export default function TriagePage() {
     (s) => s.acknowledgeSavedSession,
   );
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const vitals = useTriageStore(selectVitals);
+  const complaint = useTriageStore(selectComplaint);
+  const updateAssesment = useTriageStore((s) => s.updateAssesment);
+  const [aiLoading, setAiLoading] = useState(false);
 
   // On mount: if there's an in-progress session (SPA re-navigation or first load),
   // show the saved-session modal. Otherwise reset arrivalTime for a fresh session.
@@ -103,7 +110,39 @@ export default function TriagePage() {
   const isTransitioning = currentStep !== displayedStep;
 
   // ── Handlers ──
-  const handleNext = () => goNext();
+  const handleNext = async () => {
+    if (currentStep === 2) {
+      setAiLoading(true);
+      try {
+        const age = patient.birthDate
+          ? Math.floor(
+              (Date.now() - new Date(patient.birthDate).getTime()) /
+                (1000 * 60 * 60 * 24 * 365.25),
+            )
+          : 0;
+
+        const result = await fetchTriageAssessment({
+          complaint: complaint.rawText,
+          mtsCategory: complaint.mtsCategory!,
+          vitals,
+          discriminators: {},
+          patientAge: age,
+          patientSex: patient.biologicalSex!,
+        });
+
+        updateAssesment({
+          aiRecommendedColor: result.recommendedColor,
+          aiConfidence: result.confidence,
+          aiRationale: result.rationale,
+        });
+      } catch (err) {
+        console.error("AI triage error:", err);
+      } finally {
+        setAiLoading(false);
+      }
+    }
+    goNext();
+  };
   const handlePrev = () => goPrev();
   const handleSubmit = () => submitTriage();
 
@@ -225,8 +264,8 @@ export default function TriagePage() {
             <div className="px-6 pb-6 md:px-8 md:pb-8">
               <StepNavigation
                 currentStep={currentStep}
-                canAdvance={mounted && canAdvanceFromStore}
-                isSubmitting={submit.status === "loading"}
+                canAdvance={mounted && canAdvanceFromStore && !aiLoading}
+                isSubmitting={submit.status === "loading" || aiLoading}
                 onNext={handleNext}
                 onPrev={handlePrev}
                 onSubmit={handleSubmit}

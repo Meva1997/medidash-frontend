@@ -87,7 +87,6 @@ function buildSubmitPayload(data: TriageFormData): TriageSubmitRequest {
     nurseOverrideReason: data.assessment.nurseOverrideReason,
     aiRecommendedColor: data.assessment.aiRecommendedColor,
     destination: data.outcome.destination!,
-    censusPatientId: data.outcome.censusPatientId,
     notes: data.outcome.notes,
   };
 }

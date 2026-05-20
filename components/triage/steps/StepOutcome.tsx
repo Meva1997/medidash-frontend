@@ -125,7 +125,6 @@ export default function StepOutcome() {
             onClick={() =>
               updateOutcome({
                 destination: "waiting_room",
-                censusPatientId: null,
               })
             }
             aria-pressed={outcome.destination === "waiting_room"}
@@ -223,45 +222,10 @@ export default function StepOutcome() {
               Admit to census
             </span>
             <span className="text-xs text-slate-400 dark:text-slate-500 text-center">
-              Assign to a specific room
+              Patient is admitted to census
             </span>
           </button>
         </div>
-
-        {/* Census patient ID */}
-        {outcome.destination === "census" && (
-          <div className="mt-3">
-            <label
-              htmlFor="censusPatientId"
-              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
-            >
-              Room / census ID
-              <span className="ml-1 text-red-500" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <input
-              id="censusPatientId"
-              type="text"
-              autoFocus
-              placeholder="e.g. Room 4B, Trauma Bay 2…"
-              value={outcome.censusPatientId ?? ""}
-              onChange={(e) =>
-                updateOutcome({
-                  censusPatientId: e.target.value || null,
-                })
-              }
-              className={cn(
-                "w-full rounded-lg border px-3.5 py-2.5 text-sm",
-                "bg-white dark:bg-slate-800",
-                "border-slate-200 dark:border-slate-700",
-                "text-slate-900 dark:text-slate-100",
-                "placeholder:text-slate-400 dark:placeholder:text-slate-500",
-                "focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500",
-              )}
-            />
-          </div>
-        )}
       </section>
 
       {/* ── Notes ── */}
